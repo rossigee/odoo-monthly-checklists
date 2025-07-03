@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Partner Payment Check Form View -->
+    <record id="view_partner_payment_check_form" model="ir.ui.view">
+        <field name="name">compliance.check.partner.payment.form</field>
+        <field name="model">compliance.check.partner.payment</field>
+        <field name="arch" type="xml">
+            <form string="Partner Payment Check">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                        <group>
+                            <field name="valid_from"/>
+                            <field name="valid_until"/>
+                        </group>
+                    </group>
+                    
+                    <group string="Partner Payment Configuration">
+                        <group string="Partner Details">
+                            <field name="partner_id" required="1"/>
+                            <div colspan="2">
+                                <p class="text-info">
+                                    <i class="fa fa-info-circle"/> This check validates that the specified partner has made or received at least one payment within the monthly period being evaluated.
+                                </p>
+                            </div>
+                        </group>
+                        <group string="Amount Validation (Optional)">
+                            <field name="minimum_amount"/>
+                            <field name="maximum_amount"/>
+                            <div colspan="2">
+                                <p class="text-muted">
+                                    <i class="fa fa-info-circle"/> Set minimum and/or maximum payment amounts to validate.
+                                    Leave both at 0 to accept any payment amount.
+                                    Examples: Min 500 for rent payments, Max 100 for small expenses.
+                                </p>
+                            </div>
+                        </group>
+                        <group string="Payment Requirements">
+                            <field name="require_reconciliation"/>
+                            <div colspan="2" attrs="{'invisible': [('require_reconciliation', '=', False)]}">
+                                <p class="text-warning">
+                                    <i class="fa fa-exclamation-triangle"/> When enabled, payments must be fully reconciled (marked as paid) to pass this check.
+                                </p>
+                            </div>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Partner Payment Check Tree View -->
+    <record id="view_partner_payment_check_tree" model="ir.ui.view">
+        <field name="name">compliance.check.partner.payment.tree</field>
+        <field name="model">compliance.check.partner.payment</field>
+        <field name="arch" type="xml">
+            <tree string="Partner Payment Checks">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="minimum_amount"/>
+                <field name="maximum_amount"/>
+                <field name="require_reconciliation"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Partner Payment Check Search View -->
+    <record id="view_partner_payment_check_search" model="ir.ui.view">
+        <field name="name">compliance.check.partner.payment.search</field>
+        <field name="model">compliance.check.partner.payment</field>
+        <field name="arch" type="xml">
+            <search string="Partner Payment Checks">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="minimum_amount"/>
+                <field name="maximum_amount"/>
+                <filter name="active" string="Active" domain="[('active', '=', True)]"/>
+                <filter name="with_min_amount" string="Has Minimum Amount" domain="[('minimum_amount', '>', 0)]"/>
+                <filter name="with_max_amount" string="Has Maximum Amount" domain="[('maximum_amount', '>', 0)]"/>
+                <filter name="requires_reconciliation" string="Requires Reconciliation" domain="[('require_reconciliation', '=', True)]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_by_partner" string="Partner" domain="[]" context="{'group_by': 'partner_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Partner Payment Check Action -->
+    <record id="action_partner_payment_check" model="ir.actions.act_window">
+        <field name="name">Partner Payment Checks</field>
+        <field name="res_model">compliance.check.partner.payment</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first partner payment check!
+            </p>
+            <p>
+                Partner payment checks validate that specific partners have made or received payments within the monthly period.
+                Examples: Rent payments from landlords, utility bill payments, contractor payments.
+            </p>
+        </field>
+    </record>
+</odoo>

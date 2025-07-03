@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tier Definition for Electric Bill Compliance - Automated System Check -->
+    <record id="tier_def_electric_bill_automated" model="tier.definition">
+        <field name="model_id" ref="model_electric_bill_compliance"/>
+        <field name="sequence">10</field>
+        <field name="name">Automated System Validation</field>
+        <field name="definition_type">domain</field>
+        <field name="definition_domain">[]</field>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="base.group_system"/>
+        <field name="notify_on_create">True</field>
+        <field name="notify_on_accepted">True</field>
+    </record>
+
+    <!-- Tier Definition for Electric Bill Compliance - Department Review -->
+    <record id="tier_def_electric_bill_department" model="tier.definition">
+        <field name="model_id" ref="model_electric_bill_compliance"/>
+        <field name="sequence">20</field>
+        <field name="name">Department Review</field>
+        <field name="definition_type">domain</field>
+        <field name="definition_domain">[('error_count', '=', 0)]</field>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="account.group_account_user"/>
+        <field name="notify_on_create">True</field>
+        <field name="notify_on_accepted">True</field>
+    </record>
+
+    <!-- Tier Definition for Electric Bill Compliance - Manager Approval (High Value) -->
+    <record id="tier_def_electric_bill_manager" model="tier.definition">
+        <field name="model_id" ref="model_electric_bill_compliance"/>
+        <field name="sequence">30</field>
+        <field name="name">Manager Approval (High Value)</field>
+        <field name="definition_type">domain</field>
+        <field name="definition_domain">[('minimum_amount', '>', 200), ('warning_count', '>', 0)]</field>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="account.group_account_manager"/>
+        <field name="notify_on_create">True</field>
+        <field name="notify_on_accepted">True</field>
+    </record>
+
+    <!-- Tier Definition for Electric Bill Compliance - Executive Sign-off (Critical Issues) -->
+    <record id="tier_def_electric_bill_executive" model="tier.definition">
+        <field name="model_id" ref="model_electric_bill_compliance"/>
+        <field name="sequence">40</field>
+        <field name="name">Executive Sign-off (Critical)</field>
+        <field name="definition_type">domain</field>
+        <field name="definition_domain">[('minimum_amount', '>', 500)]</field>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="account.group_account_manager"/>
+        <field name="notify_on_create">True</field>
+        <field name="notify_on_accepted">True</field>
+    </record>
+
+    <!-- Water Bill Compliance Tier Definitions -->
+    
+    <!-- Tier Definition for Water Bill Compliance - Automated System Check -->
+    <record id="tier_def_water_bill_automated" model="tier.definition">
+        <field name="model_id" ref="model_water_bill_compliance"/>
+        <field name="sequence">10</field>
+        <field name="name">Automated System Validation</field>
+        <field name="definition_type">domain</field>
+        <field name="definition_domain">[]</field>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="base.group_system"/>
+        <field name="notify_on_create">True</field>
+        <field name="notify_on_accepted">True</field>
+    </record>
+
+    <!-- Tier Definition for Water Bill Compliance - High Variance Review -->
+    <record id="tier_def_water_bill_variance" model="tier.definition">
+        <field name="model_id" ref="model_water_bill_compliance"/>
+        <field name="sequence">20</field>
+        <field name="name">High Variance Review</field>
+        <field name="definition_type">domain</field>
+        <field name="definition_domain">[('consumption_variance_percent', '>', 50)]</field>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="account.group_account_user"/>
+        <field name="notify_on_create">True</field>
+        <field name="notify_on_accepted">True</field>
+    </record>
+
+    <!-- Tier Definition for Water Bill Compliance - Department Review -->
+    <record id="tier_def_water_bill_department" model="tier.definition">
+        <field name="model_id" ref="model_water_bill_compliance"/>
+        <field name="sequence">30</field>
+        <field name="name">Department Review</field>
+        <field name="definition_type">domain</field>
+        <field name="definition_domain">[('error_count', '=', 0)]</field>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="account.group_account_user"/>
+        <field name="notify_on_create">True</field>
+        <field name="notify_on_accepted">True</field>
+    </record>
+
+    <!-- Tier Definition for Water Bill Compliance - Manager Approval (Issues) -->
+    <record id="tier_def_water_bill_manager" model="tier.definition">
+        <field name="model_id" ref="model_water_bill_compliance"/>
+        <field name="sequence">40</field>
+        <field name="name">Manager Approval (Issues)</field>
+        <field name="definition_type">domain</field>
+        <field name="definition_domain">[('warning_count', '>', 0)]</field>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="account.group_account_manager"/>
+        <field name="notify_on_create">True</field>
+        <field name="notify_on_accepted">True</field>
+    </record>
+</odoo>

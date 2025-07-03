@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Invoice Attachment Check Form View -->
+    <record id="view_invoice_attachment_check_form" model="ir.ui.view">
+        <field name="name">compliance.check.invoice.attachment.form</field>
+        <field name="model">compliance.check.invoice.attachment</field>
+        <field name="arch" type="xml">
+            <form string="Invoice Attachment Check">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                        <group>
+                            <field name="valid_from"/>
+                            <field name="valid_until"/>
+                        </group>
+                    </group>
+                    
+                    <group string="Invoice Filter">
+                        <group string="Invoice Type">
+                            <field name="move_type"/>
+                            <div colspan="2">
+                                <p class="text-info">
+                                    <i class="fa fa-info-circle"/> Select which type of invoices/bills to check for attachments.
+                                </p>
+                            </div>
+                        </group>
+                        <group string="Partner Filter (Optional)">
+                            <field name="partner_ids" widget="many2many_tags"/>
+                            <div colspan="2">
+                                <p class="text-muted">
+                                    <i class="fa fa-lightbulb-o"/> Leave empty to check all partners, or select specific partners to limit the check.
+                                </p>
+                            </div>
+                        </group>
+                    </group>
+                    
+                    <group string="Attachment Requirements">
+                        <group string="File Type and Count">
+                            <field name="attachment_types"/>
+                            <field name="min_attachments"/>
+                            <field name="max_attachments"/>
+                        </group>
+                        <group string="File Validation (Optional)">
+                            <field name="filename_pattern"/>
+                            <field name="min_filesize_kb"/>
+                            <field name="max_filesize_kb"/>
+                            <div colspan="2">
+                                <p class="text-muted">
+                                    <i class="fa fa-lightbulb-o"/> Use filename pattern for regex validation (e.g., "invoice.*\.pdf").
+                                    File sizes are in kilobytes.
+                                </p>
+                            </div>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Invoice Attachment Check Tree View -->
+    <record id="view_invoice_attachment_check_tree" model="ir.ui.view">
+        <field name="name">compliance.check.invoice.attachment.tree</field>
+        <field name="model">compliance.check.invoice.attachment</field>
+        <field name="arch" type="xml">
+            <tree string="Invoice Attachment Checks">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="move_type"/>
+                <field name="attachment_types"/>
+                <field name="min_attachments"/>
+                <field name="max_attachments"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Invoice Attachment Check Search View -->
+    <record id="view_invoice_attachment_check_search" model="ir.ui.view">
+        <field name="name">compliance.check.invoice.attachment.search</field>
+        <field name="model">compliance.check.invoice.attachment</field>
+        <field name="arch" type="xml">
+            <search string="Invoice Attachment Checks">
+                <field name="name"/>
+                <field name="move_type"/>
+                <field name="attachment_types"/>
+                <field name="partner_ids"/>
+                <filter name="active" string="Active" domain="[('active', '=', True)]"/>
+                <filter name="vendor_bills" string="Vendor Bills" domain="[('move_type', '=', 'in_invoice')]"/>
+                <filter name="customer_invoices" string="Customer Invoices" domain="[('move_type', '=', 'out_invoice')]"/>
+                <filter name="pdf_only" string="PDF Only" domain="[('attachment_types', '=', 'pdf')]"/>
+                <filter name="has_pattern" string="Has Filename Pattern" domain="[('filename_pattern', '!=', False)]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_by_move_type" string="Invoice Type" domain="[]" context="{'group_by': 'move_type'}"/>
+                    <filter name="group_by_file_type" string="File Type" domain="[]" context="{'group_by': 'attachment_types'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Invoice Attachment Check Action -->
+    <record id="action_invoice_attachment_check" model="ir.actions.act_window">
+        <field name="name">Invoice Attachment Checks</field>
+        <field name="res_model">compliance.check.invoice.attachment</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first invoice attachment check!
+            </p>
+            <p>
+                Invoice attachment checks validate that invoice/bill records have required supporting documents.
+                Examples: PDF invoices for vendor bills, signed contracts for customer invoices.
+            </p>
+        </field>
+    </record>
+</odoo>

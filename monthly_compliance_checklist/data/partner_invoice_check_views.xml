@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Partner Invoice Check Form View -->
+    <record id="view_partner_invoice_check_form" model="ir.ui.view">
+        <field name="name">compliance.check.partner.invoice.form</field>
+        <field name="model">compliance.check.partner.invoice</field>
+        <field name="arch" type="xml">
+            <form string="Partner Invoice Check">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                        <group>
+                            <field name="valid_from"/>
+                            <field name="valid_until"/>
+                        </group>
+                    </group>
+                    
+                    <group string="Partner Invoice Configuration">
+                        <group string="Partner and Type">
+                            <field name="partner_id" required="1"/>
+                            <field name="move_type"/>
+                            <div colspan="2">
+                                <p class="text-info">
+                                    <i class="fa fa-info-circle"/> This check validates that the specified partner has created invoices/bills within the monthly period being evaluated.
+                                </p>
+                            </div>
+                        </group>
+                        <group string="Amount Validation (Optional)">
+                            <field name="minimum_amount"/>
+                            <field name="maximum_amount"/>
+                            <div colspan="2">
+                                <p class="text-muted">
+                                    <i class="fa fa-info-circle"/> Set minimum and/or maximum invoice amounts to validate.
+                                    Leave both at 0 to accept any invoice amount.
+                                    Examples: Min 1000 for large vendor bills, Max 500 for small expenses.
+                                </p>
+                            </div>
+                        </group>
+                        <group string="State Requirements">
+                            <field name="require_posted"/>
+                            <field name="require_payment"/>
+                            <div colspan="2" attrs="{'invisible': [('require_payment', '=', False)]}">
+                                <p class="text-warning">
+                                    <i class="fa fa-exclamation-triangle"/> When enabled, invoices must be fully paid to pass this check.
+                                </p>
+                            </div>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Partner Invoice Check Tree View -->
+    <record id="view_partner_invoice_check_tree" model="ir.ui.view">
+        <field name="name">compliance.check.partner.invoice.tree</field>
+        <field name="model">compliance.check.partner.invoice</field>
+        <field name="arch" type="xml">
+            <tree string="Partner Invoice Checks">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="move_type"/>
+                <field name="minimum_amount"/>
+                <field name="maximum_amount"/>
+                <field name="require_posted"/>
+                <field name="require_payment"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Partner Invoice Check Search View -->
+    <record id="view_partner_invoice_check_search" model="ir.ui.view">
+        <field name="name">compliance.check.partner.invoice.search</field>
+        <field name="model">compliance.check.partner.invoice</field>
+        <field name="arch" type="xml">
+            <search string="Partner Invoice Checks">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="move_type"/>
+                <field name="minimum_amount"/>
+                <field name="maximum_amount"/>
+                <filter name="active" string="Active" domain="[('active', '=', True)]"/>
+                <filter name="vendor_bills" string="Vendor Bills" domain="[('move_type', '=', 'in_invoice')]"/>
+                <filter name="customer_invoices" string="Customer Invoices" domain="[('move_type', '=', 'out_invoice')]"/>
+                <filter name="with_min_amount" string="Has Minimum Amount" domain="[('minimum_amount', '>', 0)]"/>
+                <filter name="with_max_amount" string="Has Maximum Amount" domain="[('maximum_amount', '>', 0)]"/>
+                <filter name="requires_posted" string="Requires Posted" domain="[('require_posted', '=', True)]"/>
+                <filter name="requires_payment" string="Requires Payment" domain="[('require_payment', '=', True)]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_by_partner" string="Partner" domain="[]" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_by_move_type" string="Invoice Type" domain="[]" context="{'group_by': 'move_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Partner Invoice Check Action -->
+    <record id="action_partner_invoice_check" model="ir.actions.act_window">
+        <field name="name">Partner Invoice Checks</field>
+        <field name="res_model">compliance.check.partner.invoice</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first partner invoice check!
+            </p>
+            <p>
+                Partner invoice checks validate that specific partners have created invoices/bills within the monthly period.
+                Examples: Monthly utility bills from suppliers, regular service invoices from vendors, customer payment schedules.
+            </p>
+        </field>
+    </record>
+</odoo>

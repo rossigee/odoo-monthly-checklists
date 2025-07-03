@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Main Menu -->
+    <menuitem id="menu_compliance_root"
+              name="Compliance"
+              parent="account.menu_finance"
+              sequence="100"/>
+
+    <!-- Check Templates Menu -->
+    <menuitem id="menu_check_templates"
+              name="Check Templates"
+              parent="menu_compliance_root"
+              action="action_check_template"
+              sequence="10"/>
+
+    <!-- Monthly Checklists Menu -->
+    <menuitem id="menu_monthly_checklists"
+              name="Monthly Checklists"
+              parent="menu_compliance_root"
+              action="action_monthly_checklist"
+              sequence="20"/>
+
+    <!-- Simplified design - no separate compliance conditions menu needed -->
+
+    <!-- Dashboard Menu -->
+    <menuitem id="menu_compliance_dashboard"
+              name="Dashboard"
+              parent="menu_compliance_root"
+              sequence="5"/>
+</odoo>

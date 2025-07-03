@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Water Bill Compliance Tree View -->
+    <record id="view_water_bill_compliance_tree" model="ir.ui.view">
+        <field name="name">water.bill.compliance.tree</field>
+        <field name="model">water.bill.compliance</field>
+        <field name="arch" type="xml">
+            <tree string="Water Bill Compliance" decoration-success="condition_state=='validated'" 
+                  decoration-warning="condition_state=='warnings'" decoration-danger="condition_state=='incomplete'">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="year"/>
+                <field name="month"/>
+                <field name="condition_state"/>
+                <field name="step_1_data_imported" widget="boolean"/>
+                <field name="step_2_invoice_created" widget="boolean"/>
+                <field name="step_3_payment_processed" widget="boolean"/>
+                <field name="step_4_bank_reconciled" widget="boolean"/>
+                <field name="step_5_invoice_reconciled" widget="boolean"/>
+                <field name="step_6_notification_sent" widget="boolean"/>
+                <field name="last_validation_date"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Water Bill Compliance Form View -->
+    <record id="view_water_bill_compliance_form" model="ir.ui.view">
+        <field name="name">water.bill.compliance.form</field>
+        <field name="model">water.bill.compliance</field>
+        <field name="arch" type="xml">
+            <form string="Water Bill Compliance">
+                <header>
+                    <button name="action_validate_condition" type="object" string="Validate Condition" 
+                            class="btn-primary" icon="fa-check"/>
+                    <button name="request_validation" type="object" string="Request Validation" 
+                            class="btn-secondary" icon="fa-paper-plane"/>
+                    <field name="condition_state" widget="statusbar" statusbar_visible="draft,incomplete,warnings,complete,validated"/>
+                </header>
+                
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_validation_details" type="object"
+                                class="oe_stat_button" icon="fa-list-alt">
+                            <field name="warning_count" widget="statinfo" string="Warnings"/>
+                        </button>
+                        <button name="action_view_validation_details" type="object"
+                                class="oe_stat_button" icon="fa-exclamation-triangle">
+                            <field name="error_count" widget="statinfo" string="Errors"/>
+                        </button>
+                    </div>
+                    
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Water Bill Compliance"/>
+                        </h1>
+                        <h3>
+                            <field name="year" class="oe_inline"/> / <field name="month" class="oe_inline"/>
+                        </h3>
+                    </div>
+                    
+                    <group>
+                        <group name="main">
+                            <field name="checklist_id"/>
+                            <field name="sequence"/>
+                            <field name="minimum_amount"/>
+                            <field name="last_validation_date"/>
+                        </group>
+                        <group name="validation">
+                            <!-- Tier validation fields will be added when properly configured -->
+                        </group>
+                    </group>
+                    
+                    <notebook>
+                        <page string="Water Usage Analysis">
+                            <group>
+                                <group string="Current Month">
+                                    <p class="text-muted">Water usage fields temporarily disabled in simplified version</p>
+                                </group>
+                                <group string="Variance Analysis">
+                                    <p class="text-muted">Variance analysis temporarily disabled in simplified version</p>
+                                </group>
+                            </group>
+                            
+                            <separator string="Consumption Trend"/>
+                            <div class="alert alert-warning">
+                                <strong>Variance Analysis:</strong> Check consumption variance percentage for significant changes from previous month.
+                                High variance (&gt;50%) may require additional review.
+                            </div>
+                        </page>
+                        
+                        <page string="Validation Steps">
+                            <group>
+                                <group string="Process Steps">
+                                    <field name="step_1_data_imported" widget="boolean_icon"/>
+                                    <field name="step_2_invoice_created" widget="boolean_icon"/>
+                                    <field name="step_3_payment_processed" widget="boolean_icon"/>
+                                    <field name="step_4_bank_reconciled" widget="boolean_icon"/>
+                                    <field name="step_5_invoice_reconciled" widget="boolean_icon"/>
+                                    <field name="step_6_notification_sent" widget="boolean_icon"/>
+                                </group>
+                                <group string="Related Records">
+                                    <p class="text-muted">Related record fields temporarily disabled in simplified version</p>
+                                </group>
+                            </group>
+                            
+                            <separator string="Validation Progress"/>
+                            <div class="row">
+                                <div class="col-2 text-center">
+                                    <span class="fa fa-tint fa-2x" style="color: #1f77b4;"/>
+                                    <br/><small>Usage Data</small>
+                                </div>
+                                <div class="col-2 text-center">
+                                    <span class="fa fa-file-text fa-2x" style="color: #ff7f0e;"/>
+                                    <br/><small>Invoice</small>
+                                </div>
+                                <div class="col-2 text-center">
+                                    <span class="fa fa-money fa-2x" style="color: #2ca02c;"/>
+                                    <br/><small>Payment</small>
+                                </div>
+                                <div class="col-2 text-center">
+                                    <span class="fa fa-university fa-2x" style="color: #d62728;"/>
+                                    <br/><small>Bank Reconcile</small>
+                                </div>
+                                <div class="col-2 text-center">
+                                    <span class="fa fa-check-circle fa-2x" style="color: #9467bd;"/>
+                                    <br/><small>Invoice Reconcile</small>
+                                </div>
+                                <div class="col-2 text-center">
+                                    <span class="fa fa-bell fa-2x" style="color: #8c564b;"/>
+                                    <br/><small>Notification</small>
+                                </div>
+                            </div>
+                        </page>
+                        
+                        <page string="Description">
+                            <field name="description" placeholder="Detailed description of the water bill compliance process"/>
+                        </page>
+                        
+                        <page string="Validation Details">
+                            <p class="alert alert-info">
+                                Validation details are temporarily disabled during development.
+                                Use the "Validate Condition" button to run validation checks.
+                            </p>
+                        </page>
+                        
+                        <page string="Validation Notes">
+                            <field name="validation_notes" placeholder="Notes from the validation process"/>
+                        </page>
+                        
+                        <page string="Tier Reviews">
+                            <p>Tier validation reviews will appear here when configured.</p>
+                        </page>
+                    </notebook>
+                </sheet>
+                
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Water Bill Compliance Action -->
+    <record id="action_water_bill_compliance" model="ir.actions.act_window">
+        <field name="name">Water Bill Compliance</field>
+        <field name="res_model">water.bill.compliance</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a Water Bill Compliance condition
+            </p>
+            <p>
+                Water Bill Compliance conditions track the complete water bill payment process
+                from usage data import through final reconciliation and notification.
+                Includes consumption variance analysis for usage monitoring.
+            </p>
+        </field>
+    </record>
+</odoo>
