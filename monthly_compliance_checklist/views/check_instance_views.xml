@@ -39,11 +39,12 @@
                     </group>
                     
                     <notebook>
-                        <page string="Validation Details">
-                            <group>
-                                <field name="validation_message" nolabel="1" colspan="2"/>
-                            </group>
-                        </page>
+                         <page string="Validation Details">
+                             <group>
+                                 <field name="validation_message" nolabel="1" colspan="2"/>
+                                 <field name="matched_move_line_id"/>
+                             </group>
+                         </page>
                         <page string="Debug Info">
                             <group>
                                 <field name="debug_info" widget="text" nolabel="1" colspan="2"/>

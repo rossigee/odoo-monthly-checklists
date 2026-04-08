@@ -20,41 +20,97 @@
                     </group>
                     
                     <notebook>
-                        <page string="Configuration">
-                            <div attrs="{'invisible': [('compliance_check_id', '!=', False)]}">
-                                <div class="alert alert-info" role="alert">
-                                    <h4><i class="fa fa-info-circle"/> Setup Required</h4>
-                                    <p>Please create a compliance check configuration for this template.</p>
-                                    <button name="action_create_compliance_check" string="Create Configuration" 
-                                            type="object" class="btn-primary"
-                                            attrs="{'invisible': [('template_type', '=', False)]}"/>
-                                </div>
-                            </div>
-                            
-                            <div attrs="{'invisible': [('compliance_check_id', '=', False)]}">
-                                <group>
-                                    <field name="compliance_check_id" readonly="1"/>
-                                </group>
-                                
-                                <!-- Human-readable condition summary -->
-                                <div class="alert alert-success mt-3" role="alert">
-                                    <h5><i class="fa fa-check-circle"/> Configuration Summary</h5>
-                                    <div class="condition-summary">
-                                        <field name="condition_summary" nolabel="1" readonly="1" class="text-dark"/>
-                                    </div>
-                                </div>
-                                
-                                <group>
-                                    <button name="action_edit_compliance_check" string="Edit Configuration" 
-                                            type="object" class="btn-primary"/>
-                                </group>
-                                
-                                <!-- Dynamic content area that will be populated by JavaScript -->
-                                <div id="dynamic_check_config" class="mt-3">
-                                    <!-- This will be populated dynamically based on compliance_check_id -->
-                                </div>
-                            </div>
-                        </page>
+                         <page string="Configuration">
+                             <div attrs="{'invisible': [('compliance_check_id', '!=', False)]}">
+                                 <!-- Legacy template fields for backward compatibility -->
+                                 <div attrs="{'invisible': [('template_type', '!=', 'partner_payment')]}">
+                                     <h4>Partner Payment Configuration</h4>
+                                     <group>
+                                         <group>
+                                             <field name="partner_id"/>
+                                             <field name="bill_identifier"/>
+                                         </group>
+                                         <group>
+                                             <field name="min_amount"/>
+                                             <field name="max_amount"/>
+                                             <field name="expected_amount"/>
+                                             <field name="amount_tolerance"/>
+                                         </group>
+                                         <group>
+                                             <field name="payment_frequency"/>
+                                             <field name="require_reconciliation"/>
+                                         </group>
+                                     </group>
+                                 </div>
+
+                                 <div attrs="{'invisible': [('template_type', '!=', 'attachment_check')]}">
+                                     <h4>Attachment Requirements Configuration</h4>
+                                     <group>
+                                         <group>
+                                             <field name="attachment_types"/>
+                                             <field name="min_attachments"/>
+                                             <field name="max_attachments"/>
+                                         </group>
+                                         <group>
+                                             <field name="filename_pattern"/>
+                                             <field name="min_filesize_kb"/>
+                                             <field name="max_filesize_kb"/>
+                                         </group>
+                                     </group>
+                                 </div>
+
+                                 <div attrs="{'invisible': [('template_type', '!=', 'recurring_expense')]}">
+                                     <h4>Recurring Expense Configuration</h4>
+                                     <group>
+                                         <group>
+                                             <field name="expense_category"/>
+                                             <field name="expected_range_min"/>
+                                             <field name="expected_range_max"/>
+                                         </group>
+                                         <group>
+                                             <field name="variance_alert"/>
+                                             <field name="supplier_validation"/>
+                                         </group>
+                                         <group>
+                                             <field name="approved_partners"/>
+                                             <field name="account_ids"/>
+                                         </group>
+                                     </group>
+                                 </div>
+
+                                 <div class="alert alert-info" role="alert">
+                                     <h4><i class="fa fa-info-circle"/> Setup Required</h4>
+                                     <p>Please create a compliance check configuration for this template.</p>
+                                     <button name="action_create_compliance_check" string="Create Configuration"
+                                             type="object" class="btn-primary"
+                                             attrs="{'invisible': [('template_type', '=', False)]}"/>
+                                 </div>
+                             </div>
+
+                             <div attrs="{'invisible': [('compliance_check_id', '=', False)]}">
+                                 <group>
+                                     <field name="compliance_check_id" readonly="1"/>
+                                 </group>
+
+                                 <!-- Human-readable condition summary -->
+                                 <div class="alert alert-success mt-3" role="alert">
+                                     <h5><i class="fa fa-check-circle"/> Configuration Summary</h5>
+                                     <div class="condition-summary">
+                                         <field name="condition_summary" nolabel="1" readonly="1" class="text-dark"/>
+                                     </div>
+                                 </div>
+
+                                 <group>
+                                     <button name="action_edit_compliance_check" string="Edit Configuration"
+                                             type="object" class="btn-primary"/>
+                                 </group>
+
+                                 <!-- Dynamic content area that will be populated by JavaScript -->
+                                 <div id="dynamic_check_config" class="mt-3">
+                                     <!-- This will be populated dynamically based on compliance_check_id -->
+                                 </div>
+                             </div>
+                         </page>
                         
                         <!-- Help and Examples -->
                         <page string="Help &amp; Examples">

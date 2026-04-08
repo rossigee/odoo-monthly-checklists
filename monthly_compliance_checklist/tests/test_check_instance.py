@@ -40,9 +40,10 @@ class TestCheckInstance(TransactionCase):
         # Create template and checklist
         cls.template = cls.env['check.template'].create({
             'name': 'Test Partner Payment',
-            'check_type': 'partner_payment_check',
-            'partner_ids': [(6, 0, [cls.partner.id])],
-            'minimum_amount': 100.0,
+            'template_type': 'partner_payment',
+            'partner_id': cls.partner.id,
+            'min_amount': 100.0,
+            'max_amount': 200.0,
         })
         
         cls.checklist = cls.env['monthly.checklist'].create({
@@ -63,18 +64,19 @@ class TestCheckInstance(TransactionCase):
         self.assertFalse(instance.completion_date)
         
     def test_partner_payment_validation(self):
-        """Test partner payment check validation"""
+        """Test partner payment check validation with amount range and linking"""
         # Create check instance
         instance = self.env['check.instance'].create({
             'name': 'Partner Payment Check',
             'template_id': self.template.id,
             'checklist_id': self.checklist.id,
         })
-        
+
         # Initially not completed
         self.assertFalse(instance.is_completed)
-        
-        # Create a payment move
+        self.assertFalse(instance.matched_move_line_id)
+
+        # Create a payment move with credit line in range (100-200)
         move = self.env['account.move'].create({
             'move_type': 'entry',
             'date': date(2025, 1, 15),
@@ -94,15 +96,26 @@ class TestCheckInstance(TransactionCase):
                 }),
             ],
         })
-        
+
         # Post the move
         move.action_post()
-        
+
         # Re-evaluate the instance
         instance._compute_is_completed()
-        
-        # Should be completed now (amount > minimum)
+
+        # Should be completed now and linked to the credit line
         self.assertTrue(instance.is_completed)
+        self.assertTrue(instance.matched_move_line_id)
+        self.assertEqual(instance.matched_move_line_id.credit, 150.0)
+
+        # Create another instance - should not match the same line
+        instance2 = self.env['check.instance'].create({
+            'name': 'Partner Payment Check 2',
+            'template_id': self.template.id,
+            'checklist_id': self.checklist.id,
+        })
+        instance2._compute_is_completed()
+        self.assertFalse(instance2.is_completed)  # No more available lines
         
     def test_attachment_check_validation(self):
         """Test attachment check validation"""

@@ -23,7 +23,7 @@ class CheckTemplate(models.Model):
         try:
             from .abstract_compliance_check import AbstractComplianceCheck
             return AbstractComplianceCheck.get_registered_check_types(self.env)
-        except:
+        except Exception:
             # Fallback during module installation
             return [
                 ('partner_payment', 'Partner Payment Check'),
@@ -75,9 +75,21 @@ class CheckTemplate(models.Model):
         string='Required Partner',
         help='Specific partner that must have transactions'
     )
+    bill_identifier = fields.Char(
+        string='Bill Identifier',
+        help='Descriptive name for the bill type, e.g., House 349/1'
+    )
+    min_amount = fields.Float(
+        string='Minimum Amount',
+        help='Minimum payment amount for this check'
+    )
+    max_amount = fields.Float(
+        string='Maximum Amount',
+        help='Maximum payment amount for this check'
+    )
     expected_amount = fields.Float(
         string='Expected Amount',
-        help='Expected transaction amount'
+        help='Expected transaction amount (legacy, use min/max for ranges)'
     )
     amount_tolerance = fields.Float(
         string='Amount Tolerance %',
@@ -255,20 +267,24 @@ class CheckTemplate(models.Model):
             
         return True
     
-    def evaluate_condition(self, year, month):
+    def evaluate_condition(self, year, month, instance=None):
         """
         Evaluate if this template's conditions are met for the given month/year
         Returns: (is_met: bool, details: dict)
         """
         if self.compliance_check_id:
-            # Use the referenced compliance check record
+            # Use the referenced compliance check record (legacy models don't accept instance)
             return self.compliance_check_id.evaluate_condition(year, month)
         else:
             # Fallback to legacy evaluation for backward compatibility
-            return self._evaluate_legacy_condition(year, month)
+            return self._evaluate_legacy_condition(year, month, instance=instance)
     
-    def _evaluate_legacy_condition(self, year, month):
+    def _evaluate_legacy_condition(self, year, month, instance=None):
         """Legacy evaluation method for backward compatibility"""
+        # For partner_payment type, use the specific method
+        if self.template_type == 'partner_payment':
+            start_date, end_date = self._get_month_date_range(year, month)
+            return self._evaluate_partner_payment(start_date, end_date, instance)
         # This can be removed once all templates are migrated to use compliance_check_id
         return False, {'message': 'No compliance check configuration found'}
     
@@ -333,54 +349,73 @@ class CheckTemplate(models.Model):
             'target': 'new',
         }
     
-    def _evaluate_partner_payment(self, start_date, end_date):
+    def _evaluate_partner_payment(self, start_date, end_date, instance=None):
         """Evaluate partner payment check"""
         if not self.partner_id:
             return False, {'message': 'No partner specified for payment check'}
-        
-        # Find transactions with the required partner
+
+        # Find posted payment lines with the required partner
         domain = [
             ('date', '>=', start_date),
             ('date', '<=', end_date),
-            ('state', '=', 'posted'),
-            ('partner_id', '=', self.partner_id.id)
+            ('partner_id', '=', self.partner_id.id),
+            ('credit', '>', 0),  # Payments are credits
+            ('parent_state', '=', 'posted'),
         ]
-        
-        moves = self.env['account.move'].search(domain)
-        
-        if not moves:
-            return False, {'message': f'No transactions found for partner {self.partner_id.name}'}
-        
-        # Check amount if specified
-        if self.expected_amount > 0:
+
+        # Apply amount range if specified
+        if self.min_amount:
+            domain.append(('credit', '>=', self.min_amount))
+        if self.max_amount:
+            domain.append(('credit', '<=', self.max_amount))
+        elif self.expected_amount > 0:  # Legacy support
             tolerance = self.expected_amount * (self.amount_tolerance / 100) if self.amount_tolerance else 0
-            min_amount = self.expected_amount - tolerance
-            max_amount = self.expected_amount + tolerance
-            
-            matching_moves = moves.filtered(
-                lambda m: min_amount <= abs(m.amount_total) <= max_amount
-            )
-            
-            if not matching_moves:
-                return False, {
-                    'message': f'No transactions found for {self.partner_id.name} with expected amount {self.expected_amount} (±{self.amount_tolerance}%)'
-                }
-            moves = matching_moves
-        
-        # Check reconciliation if required
+            min_amt = self.expected_amount - tolerance
+            max_amt = self.expected_amount + tolerance
+            domain.extend([('credit', '>=', min_amt), ('credit', '<=', max_amt)])
+
+        move_lines = self.env['account.move.line'].search(domain)
+
+        if not move_lines:
+            range_desc = f' between {self.min_amount} and {self.max_amount}' if self.min_amount or self.max_amount else f' around {self.expected_amount} (±{self.amount_tolerance}%)' if self.expected_amount else ''
+            return False, {'message': f'No payments found for partner {self.partner_id.name}{range_desc}'}
+
+        # Filter out lines already matched to other instances
+        if instance:
+            matched_line_ids = self.env['check.instance'].search([
+                ('id', '!=', instance.id),
+                ('matched_move_line_id', '!=', False)
+            ]).mapped('matched_move_line_id.id')
+            available_lines = move_lines.filtered(lambda l: l.id not in matched_line_ids)
+        else:
+            available_lines = move_lines
+
+        if not available_lines:
+            return False, {'message': f'All matching payments for {self.partner_id.name} are already used by other checks'}
+
+        # Select the best match (e.g., most recent)
+        selected_line = available_lines.sorted(key=lambda l: l.date, reverse=True)[0]
+
+        # Link to instance if provided
+        if instance:
+            instance.matched_move_line_id = selected_line
+
+        # Check reconciliation if required (on the move)
         if self.require_reconciliation:
-            reconciled_moves = moves.filtered(lambda m: m.payment_state == 'paid')
-            if not reconciled_moves:
+            move = selected_line.move_id
+            if move.payment_state != 'paid':
                 return False, {
-                    'message': f'Transactions found for {self.partner_id.name} but none are reconciled'
+                    'message': f'Payment found for {self.partner_id.name} but not reconciled (ID: {selected_line.id})'
                 }
-            moves = reconciled_moves
-        
+
+        move_ids = list(set(line.move_id.id for line in available_lines))
+
         return True, {
-            'message': f'Partner payment check passed: {len(moves)} transaction(s) found for {self.partner_id.name}',
-            'move_count': len(moves),
-            'total_amount': sum(moves.mapped('amount_total')),
-            'move_ids': moves.ids
+            'message': f'Partner payment check passed: Payment {selected_line.id} ({selected_line.credit}) linked for {self.partner_id.name}',
+            'move_count': len(move_ids),
+            'total_amount': sum(m.credit for m in available_lines),
+            'move_ids': move_ids,
+            'matched_line_id': selected_line.id
         }
     
     def _evaluate_attachment_check(self, start_date, end_date):

@@ -47,7 +47,14 @@ class CheckInstance(models.Model):
         string='Validation Details',
         help='Details about condition evaluation'
     )
-    
+
+    # Payment linking
+    matched_move_line_id = fields.Many2one(
+        'account.move.line',
+        string='Matched Payment',
+        help='The specific payment line that satisfies this check'
+    )
+
     # Debug field to show search criteria
     debug_info = fields.Text(
         string='Debug Info',
@@ -68,25 +75,32 @@ class CheckInstance(models.Model):
                 instance.is_completed = False
                 instance.validation_message = 'No template defined'
                 continue
-                
-            # Use template to evaluate condition
-            is_met, details = instance.template_id.evaluate_condition(
-                instance.year, 
-                instance.month
-            )
-            
+
             was_completed = instance.is_completed
+
+            # Use template to evaluate condition; _evaluate_partner_payment
+            # writes matched_move_line_id as a side effect
+            is_met, details = instance.template_id.evaluate_condition(
+                instance.year,
+                instance.month,
+                instance=instance
+            )
+
             instance.is_completed = is_met
             instance.validation_message = details.get('message', '')
-            
+
+            # Clear link if the check no longer passes
+            if not is_met and instance.matched_move_line_id:
+                instance.matched_move_line_id = False
+
             # Update related moves if provided
             if 'move_ids' in details:
                 instance.related_move_ids = [(6, 0, details['move_ids'])]
-            
-            # Set completion date when first completed
+
+            # Track first completion and clear date on regression
             if is_met and not was_completed:
                 instance.completion_date = fields.Datetime.now()
-            elif not is_met and instance.completion_date:
+            elif not is_met:
                 instance.completion_date = False
     
     def reevaluate_condition(self):
@@ -110,10 +124,13 @@ class CheckInstance(models.Model):
                 if template.template_type == 'partner_payment':
                     # Check both legacy template fields and compliance check record
                     debug_lines.append(f"Legacy Template Partner: {template.partner_id.name if template.partner_id else 'None'} (ID: {template.partner_id.id if template.partner_id else 'None'})")
+                    debug_lines.append(f"Bill Identifier: {template.bill_identifier or 'None'}")
+                    debug_lines.append(f"Min Amount: {template.min_amount}")
+                    debug_lines.append(f"Max Amount: {template.max_amount}")
                     debug_lines.append(f"Expected Amount: {template.expected_amount}")
                     debug_lines.append(f"Amount Tolerance: {template.amount_tolerance}%")
                     debug_lines.append(f"Require Reconciliation: {template.require_reconciliation}")
-                    
+
                     # Check compliance check record
                     debug_lines.append(f"Compliance Check ID: {template.compliance_check_id}")
                     if template.compliance_check_id:

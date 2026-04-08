@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
+from odoo.exceptions import UserError
 
 
 class ComplianceCondition(models.AbstractModel):
@@ -134,7 +135,11 @@ class ComplianceCondition(models.AbstractModel):
         Simplified version without validation details.
         """
         self.ensure_one()
-        
+
+        # Recompute step flags before building results
+        if hasattr(self, '_compute_validation_steps'):
+            self._compute_validation_steps()
+
         # Run condition-specific validation
         validation_results = self._run_validation_checks()
         
@@ -202,7 +207,7 @@ class ComplianceCondition(models.AbstractModel):
                 }
             }
         else:
-            raise models.UserError(
+            raise UserError(
                 f"Cannot request validation: {self.error_count} blocking errors found. "
                 "Please resolve all errors before requesting validation."
             )

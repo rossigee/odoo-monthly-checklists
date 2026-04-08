@@ -5,7 +5,7 @@
         <field name="name">electric.bill.compliance.tree</field>
         <field name="model">electric.bill.compliance</field>
         <field name="arch" type="xml">
-            <tree string="Electric Bill Compliance" decoration-success="condition_state=='validated'" 
+            <tree string="Electric Bill Compliance" decoration-success="condition_state=='complete'" 
                   decoration-warning="condition_state=='warnings'" decoration-danger="condition_state=='incomplete'">
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
@@ -62,28 +62,23 @@
                         <group name="main">
                             <field name="checklist_id"/>
                             <field name="sequence"/>
+                            <field name="partner_id"/>
                             <field name="minimum_amount"/>
                             <field name="last_validation_date"/>
                         </group>
                         <group name="validation">
-                            <!-- Tier validation fields will be added when properly configured -->
                         </group>
                     </group>
                     
                     <notebook>
                         <page string="Validation Steps">
-                            <group>
-                                <group string="Process Steps">
-                                    <field name="step_1_data_imported" widget="boolean_icon"/>
-                                    <field name="step_2_invoice_created" widget="boolean_icon"/>
-                                    <field name="step_3_payment_processed" widget="boolean_icon"/>
-                                    <field name="step_4_bank_reconciled" widget="boolean_icon"/>
-                                    <field name="step_5_invoice_reconciled" widget="boolean_icon"/>
-                                    <field name="step_6_notification_sent" widget="boolean_icon"/>
-                                </group>
-                                <group string="Related Records">
-                                    <p class="text-muted">Related record fields temporarily disabled in simplified version</p>
-                                </group>
+                            <group string="Process Steps">
+                                <field name="step_1_data_imported" widget="boolean_icon"/>
+                                <field name="step_2_invoice_created" widget="boolean_icon"/>
+                                <field name="step_3_payment_processed" widget="boolean_icon"/>
+                                <field name="step_4_bank_reconciled" widget="boolean_icon"/>
+                                <field name="step_5_invoice_reconciled" widget="boolean_icon"/>
+                                <field name="step_6_notification_sent" widget="boolean_icon"/>
                             </group>
                             
                             <separator string="Validation Progress"/>
@@ -119,19 +114,8 @@
                             <field name="description" placeholder="Detailed description of the electric bill compliance process"/>
                         </page>
                         
-                        <page string="Validation Details">
-                            <p class="alert alert-info">
-                                Validation details are temporarily disabled during development.
-                                Use the "Validate Condition" button to run validation checks.
-                            </p>
-                        </page>
-                        
                         <page string="Validation Notes">
                             <field name="validation_notes" placeholder="Notes from the validation process"/>
-                        </page>
-                        
-                        <page string="Tier Reviews">
-                            <p>Tier validation reviews will appear here when configured.</p>
                         </page>
                     </notebook>
                 </sheet>

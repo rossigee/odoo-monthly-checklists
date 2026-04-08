@@ -10,3 +10,6 @@ from . import check_instance
 from . import monthly_checklist
 from . import account_move
 from . import compliance_backfill_wizard
+from . import compliance_condition
+from . import electric_bill_compliance
+from . import water_bill_compliance

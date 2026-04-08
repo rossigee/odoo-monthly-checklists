@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Electric Bill Check Templates -->
+        <record id="check_template_electric_house_349_1" model="check.template">
+            <field name="name">Electric Bill - House 349/1</field>
+            <field name="template_type">partner_payment</field>
+            <field name="partner_id" search="[('name', '=', 'Provincial Electric Authority (การไฟฟ้าส่วนภูมิภาค)')]"/>
+            <field name="bill_identifier">House 349/1</field>
+            <field name="min_amount">3500.00</field>
+            <field name="max_amount">5500.00</field>
+            <field name="payment_frequency">monthly</field>
+            <field name="require_reconciliation">True</field>
+        </record>
+
+        <record id="check_template_electric_pigshed" model="check.template">
+            <field name="name">Electric Bill - Pigshed</field>
+            <field name="template_type">partner_payment</field>
+            <field name="partner_id" search="[('name', '=', 'Provincial Electric Authority (การไฟฟ้าส่วนภูมิภาค)')]"/>
+            <field name="bill_identifier">Pigshed</field>
+            <field name="min_amount">200.00</field>
+            <field name="max_amount">400.00</field>
+            <field name="payment_frequency">monthly</field>
+            <field name="require_reconciliation">True</field>
+        </record>
+
+        <!-- Additional electric bill templates can be added here when ranges are provided -->
+    </data>
+</odoo>
