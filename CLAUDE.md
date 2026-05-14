@@ -50,7 +50,7 @@ A primary condition is considered complete when all subconditions are at least a
 ```python
 'depends': [
     'account',
-    'mail', 
+    'mail',
     'base_tier_validation',  # Core validation framework
 ]
 ```
@@ -60,10 +60,10 @@ A primary condition is considered complete when all subconditions are at least a
 class ElectricBillCompliance(models.Model):
     _name = 'electric.bill.compliance'
     _inherit = ['mail.thread', 'tier.validation']
-    
+
     _state_from = ['draft', 'in_progress']
     _state_to = ['validated', 'approved']
-    
+
     # Tier 1: Automated data validation
     # Tier 2: Department review  
     # Tier 3: Financial approval
@@ -217,7 +217,7 @@ odoo-bin -d test_db --test-enable --stop-after-init -u monthly_compliance_checkl
 ### 🎯 Next Steps / TODOs
 1. **Test Installation**: Verify module installs and upgrades without errors
 2. **Configure Base Tier Validation**: Ensure `base_tier_validation` dependency is properly installed
-3. **Add More Compliance Types**: 
+3. **Add More Compliance Types**:
    - Bank statement import compliance
      - Needed to confirm that last month's bank statement(s) have been downloaded from the bank, and
        imported into Odoo, and that they balance etc.
@@ -245,7 +245,7 @@ odoo-bin -d test_db --test-enable --stop-after-init -u monthly_compliance_checkl
 class NewComplianceType(models.Model):
     _name = 'new.compliance.type'
     _inherit = 'compliance.condition.abstract'
-    
+
     # Specific fields for this compliance type
     # Override _run_validation_checks()
     # Override _compute_condition_state()
@@ -271,7 +271,7 @@ Successfully resolved the KeyError 'checklist_id' issue that was preventing modu
 - **Field Reference Issues**: Updated views to handle missing validation_details field
 - **Model Loading**: Re-enabled compliance models with simplified validation system
 
-**Current State**: 
+**Current State**:
 - ✅ **Core architecture** is sound and well-designed
 - ✅ **Models and views** are properly structured  
 - ✅ **Business logic** is comprehensive and extensible
@@ -325,7 +325,7 @@ To add a new compliance type (e.g., rent payments):
 class RentPaymentCompliance(models.Model):
     _name = 'rent.payment.compliance'
     _inherit = 'compliance.condition.abstract'
-    
+
     lease_agreement_id = fields.Many2one('lease.agreement', string='Lease Agreement')
     # ... specific fields and validation logic
 ```

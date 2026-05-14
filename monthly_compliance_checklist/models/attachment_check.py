@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
 import re
+
+from odoo import api, fields, models
 
 
 class AttachmentCheck(models.Model):
@@ -13,11 +14,11 @@ class AttachmentCheck(models.Model):
     _description = 'Attachment Requirements Check'
     _inherit = 'abstract.compliance.check'
     _table = 'compliance_check_attachment'
-    
+
     # Registration info for the check type registry
     _compliance_check_type = 'attachment_check'
     _compliance_check_name = 'Attachment Requirements'
-    
+
     # Attachment specific fields
     attachment_types = fields.Selection([
         ('pdf', 'PDF Documents'),
@@ -25,7 +26,7 @@ class AttachmentCheck(models.Model):
         ('excel', 'Excel/CSV Files'),
         ('any', 'Any File Type')
     ], string='Required File Types', default='pdf')
-    
+
     min_attachments = fields.Integer(
         string='Minimum Attachments',
         default=1,
@@ -62,7 +63,7 @@ class AttachmentCheck(models.Model):
         string='Filter by Accounts',
         help='Only check transactions affecting these accounts'
     )
-    
+
     @api.model
     def get_evaluation_fields(self):
         """Return fields relevant for attachment evaluation"""
@@ -72,7 +73,7 @@ class AttachmentCheck(models.Model):
             'filename_pattern', 'min_filesize_kb', 'max_filesize_kb',
             'require_all_transactions', 'partner_filter', 'account_filter'
         ]
-    
+
     @classmethod
     def get_view_ids(cls, env):
         """Return view IDs for this check type"""
@@ -82,7 +83,7 @@ class AttachmentCheck(models.Model):
             'search': env.ref('monthly_compliance_checklist.view_attachment_check_search').id,
             'action': env.ref('monthly_compliance_checklist.action_attachment_check').id,
         }
-    
+
     @api.model
     def get_configuration_action(self):
         """Return action to open this check type's configuration"""
@@ -95,43 +96,43 @@ class AttachmentCheck(models.Model):
             'target': 'new',
             'context': {'default_name': 'New Attachment Check'}
         }
-    
+
     def evaluate_condition(self, year, month):
         """
         Evaluate attachment requirements for the given month/year.
         Returns: (is_met: bool, details: dict)
         """
         start_date, end_date = self._get_month_date_range(year, month)
-        
+
         # Build domain for transactions to check
         domain = [
             ('date', '>=', start_date),
             ('date', '<=', end_date),
             ('state', '=', 'posted')
         ]
-        
+
         # Add optional filters
         if self.partner_filter:
             domain.append(('partner_id', '=', self.partner_filter.id))
         if self.account_filter:
             domain.append(('line_ids.account_id', 'in', self.account_filter.ids))
-        
+
         moves = self.env['account.move'].search(domain)
-        
+
         if not moves:
             return False, {'message': 'No transactions found for this period'}
-        
+
         matching_moves = []
         failed_moves = []
-        
+
         for move in moves:
             meets_requirements, failure_reason = self._check_move_attachments(move)
-            
+
             if meets_requirements:
                 matching_moves.append(move)
             else:
                 failed_moves.append((move, failure_reason))
-        
+
         # Determine if check passes
         if self.require_all_transactions:
             # All transactions must meet requirements
@@ -153,14 +154,14 @@ class AttachmentCheck(models.Model):
                     'total_count': len(moves),
                     'failed_move_ids': [move.id for move, reason in failed_moves]
                 }
-        
+
         return True, {
             'message': f'Attachment check passed: {len(matching_moves)} of {len(moves)} transaction(s) meet requirements',
             'matching_count': len(matching_moves),
             'total_count': len(moves),
             'move_ids': [m.id for m in matching_moves]
         }
-    
+
     def _check_move_attachments(self, move):
         """
         Check if a single move meets attachment requirements.
@@ -168,9 +169,9 @@ class AttachmentCheck(models.Model):
         """
         if not move.attachment_ids:
             return False, 'No attachments found'
-        
+
         attachments = move.attachment_ids
-        
+
         # Filter by file type if specified
         if self.attachment_types != 'any':
             if self.attachment_types == 'pdf':
@@ -183,17 +184,17 @@ class AttachmentCheck(models.Model):
                     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                     'text/csv'
                 ])
-        
+
         if not attachments:
             return False, f'No {self.attachment_types} attachments found'
-        
+
         # Check attachment count
         if len(attachments) < self.min_attachments:
             return False, f'Only {len(attachments)} attachments found, need at least {self.min_attachments}'
-        
+
         if self.max_attachments > 0 and len(attachments) > self.max_attachments:
             return False, f'Too many attachments: {len(attachments)}, maximum allowed: {self.max_attachments}'
-        
+
         # Check filename pattern if specified
         if self.filename_pattern:
             pattern_matches = any(
@@ -202,7 +203,7 @@ class AttachmentCheck(models.Model):
             )
             if not pattern_matches:
                 return False, f'No attachments match filename pattern: {self.filename_pattern}'
-        
+
         # Check file sizes if specified
         if self.min_filesize_kb or self.max_filesize_kb:
             for attachment in attachments:
@@ -211,5 +212,5 @@ class AttachmentCheck(models.Model):
                     return False, f'Attachment {attachment.name} too small: {size_kb:.1f}KB < {self.min_filesize_kb}KB'
                 if self.max_filesize_kb and size_kb > self.max_filesize_kb:
                     return False, f'Attachment {attachment.name} too large: {size_kb:.1f}KB > {self.max_filesize_kb}KB'
-        
+
         return True, 'All attachment requirements met'

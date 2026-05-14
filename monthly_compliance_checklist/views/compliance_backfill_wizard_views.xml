@@ -12,7 +12,7 @@
                             <field name="template_id" options="{'no_create': True, 'no_edit': True}"/>
                         </h1>
                     </div>
-                    
+
                     <group>
                         <group string="Date Range">
                             <label for="start_year" string="Start Date"/>
@@ -21,7 +21,7 @@
                                 <span>/</span>
                                 <field name="start_month" class="oe_inline" style="width: 60px;"/>
                             </div>
-                            
+
                             <label for="end_year" string="End Date"/>
                             <div class="o_row">
                                 <field name="end_year" class="oe_inline" style="width: 80px;"/>
@@ -29,19 +29,19 @@
                                 <field name="end_month" class="oe_inline" style="width: 60px;"/>
                             </div>
                         </group>
-                        
+
                         <group string="Options">
                             <field name="skip_existing"/>
                         </group>
                     </group>
-                    
+
                     <group string="Preview">
                         <field name="months_to_create" nolabel="1" readonly="1"/>
                     </group>
                 </sheet>
-                
+
                 <footer>
-                    <button name="action_create_checklists" string="Create Checklists" 
+                    <button name="action_create_checklists" string="Create Checklists"
                             type="object" class="btn-primary"/>
                     <button string="Cancel" class="btn-secondary" special="cancel"/>
                 </footer>

@@ -5,7 +5,7 @@
         <field name="name">electric.bill.compliance.tree</field>
         <field name="model">electric.bill.compliance</field>
         <field name="arch" type="xml">
-            <tree string="Electric Bill Compliance" decoration-success="condition_state=='complete'" 
+            <tree string="Electric Bill Compliance" decoration-success="condition_state=='complete'"
                   decoration-warning="condition_state=='warnings'" decoration-danger="condition_state=='incomplete'">
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
@@ -30,13 +30,13 @@
         <field name="arch" type="xml">
             <form string="Electric Bill Compliance">
                 <header>
-                    <button name="action_validate_condition" type="object" string="Validate Condition" 
+                    <button name="action_validate_condition" type="object" string="Validate Condition"
                             class="btn-primary" icon="fa-check"/>
-                    <button name="request_validation" type="object" string="Request Validation" 
+                    <button name="request_validation" type="object" string="Request Validation"
                             class="btn-secondary" icon="fa-paper-plane"/>
                     <field name="condition_state" widget="statusbar" statusbar_visible="draft,incomplete,warnings,complete,validated"/>
                 </header>
-                
+
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <button name="action_view_validation_details" type="object"
@@ -48,7 +48,7 @@
                             <field name="error_count" widget="statinfo" string="Errors"/>
                         </button>
                     </div>
-                    
+
                     <div class="oe_title">
                         <h1>
                             <field name="name" placeholder="Electric Bill Compliance"/>
@@ -57,7 +57,7 @@
                             <field name="year" class="oe_inline"/> / <field name="month" class="oe_inline"/>
                         </h3>
                     </div>
-                    
+
                     <group>
                         <group name="main">
                             <field name="checklist_id"/>
@@ -69,7 +69,7 @@
                         <group name="validation">
                         </group>
                     </group>
-                    
+
                     <notebook>
                         <page string="Validation Steps">
                             <group string="Process Steps">
@@ -80,7 +80,7 @@
                                 <field name="step_5_invoice_reconciled" widget="boolean_icon"/>
                                 <field name="step_6_notification_sent" widget="boolean_icon"/>
                             </group>
-                            
+
                             <separator string="Validation Progress"/>
                             <div class="row">
                                 <div class="col-2 text-center">
@@ -109,17 +109,17 @@
                                 </div>
                             </div>
                         </page>
-                        
+
                         <page string="Description">
                             <field name="description" placeholder="Detailed description of the electric bill compliance process"/>
                         </page>
-                        
+
                         <page string="Validation Notes">
                             <field name="validation_notes" placeholder="Notes from the validation process"/>
                         </page>
                     </notebook>
                 </sheet>
-                
+
                 <div class="oe_chatter">
                     <field name="message_follower_ids"/>
                     <field name="activity_ids"/>

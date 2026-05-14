@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
             <form string="Compliance Template">
                 <header>
-                    <button name="action_backfill_checklists" string="Backfill Checklists" 
+                    <button name="action_backfill_checklists" string="Backfill Checklists"
                             type="object" class="btn-secondary"/>
                     <field name="active" widget="boolean_toggle"/>
                 </header>
@@ -21,7 +21,7 @@
                             <field name="description"/>
                         </group>
                     </group>
-                    
+
                     <notebook>
                         <page string="Template Checks">
                             <p class="text-muted">Define the specific checks that should be created each month from this template.</p>
@@ -49,7 +49,7 @@
                                             <field name="valid_until"/>
                                         </group>
                                     </group>
-                                    
+
                                     <notebook>
                                         <page string="Condition Details">
                                             <group>
@@ -62,7 +62,7 @@
                                                     <field name="move_type"/>
                                                 </group>
                                             </group>
-                                            
+
                                             <group>
                                                 <group string="Amount Conditions">
                                                     <field name="minimum_amount"/>
@@ -78,7 +78,7 @@
                                 </form>
                             </field>
                         </page>
-                        
+
                         <page string="Monthly Checklists">
                             <field name="monthly_checklists" nolabel="1" readonly="1">
                                 <tree>

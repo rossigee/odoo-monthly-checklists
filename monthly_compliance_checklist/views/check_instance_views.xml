@@ -7,14 +7,14 @@
         <field name="arch" type="xml">
             <form string="Check Instance">
                 <header>
-                    <button name="reevaluate_condition" string="Re-evaluate Condition" 
+                    <button name="reevaluate_condition" string="Re-evaluate Condition"
                             type="object" class="btn-primary"/>
-                    <field name="is_completed" widget="boolean_button" 
+                    <field name="is_completed" widget="boolean_button"
                            options="{'terminology': {'string_true': 'Completed', 'string_false': 'Pending'}}"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button class="oe_stat_button" icon="fa-external-link" 
+                        <button class="oe_stat_button" icon="fa-external-link"
                                 name="action_view_related_moves" type="object"
                                 attrs="{'invisible': [('related_move_ids', '=', [])]}">
                             <field name="related_move_ids" invisible="1"/>
@@ -26,7 +26,7 @@
                             </div>
                         </button>
                     </div>
-                    
+
                     <group>
                         <group>
                             <field name="name" readonly="1"/>
@@ -37,7 +37,7 @@
                             <field name="sequence"/>
                         </group>
                     </group>
-                    
+
                     <notebook>
                          <page string="Validation Details">
                              <group>
@@ -83,10 +83,10 @@
                 <field name="checklist_id"/>
                 <field name="is_completed"/>
                 <field name="validation_message"/>
-                <button name="action_view_related_moves" type="object" 
+                <button name="action_view_related_moves" type="object"
                         icon="fa-external-link" title="View Related Transactions"
                         attrs="{'invisible': [('related_move_ids', '=', [])]}"/>
-                <button name="reevaluate_condition" type="object" 
+                <button name="reevaluate_condition" type="object"
                         icon="fa-refresh" title="Re-evaluate Condition"/>
                 <field name="related_move_ids" invisible="1"/>
             </tree>

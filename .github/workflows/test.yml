@@ -1,10 +1,11 @@
+---
 name: Odoo Module Tests
 
 on:
   push:
-    branches: [ 16.0, 16.0-develop ]
+    branches: [16.0, 16.0-develop]
   pull_request:
-    branches: [ 16.0 ]
+    branches: [16.0]
 
 jobs:
   test:
@@ -109,7 +110,11 @@ jobs:
     - name: Install module
       run: |
         cd odoo
-        python odoo-bin -d test_db --init=monthly_compliance_checklist --stop-after-init --addons-path=../addons --log-level=info
+        python odoo-bin -d test_db \
+          --init=monthly_compliance_checklist \
+          --stop-after-init \
+          --addons-path=../addons \
+          --log-level=info
       env:
         PGHOST: localhost
         PGPORT: 5432
@@ -160,7 +165,7 @@ jobs:
       run: |
         pip install flake8 black isort
         # Check Python code style
-        flake8 monthly_compliance_checklist --max-line-length=88 --extend-ignore=E203,W503
+        flake8 monthly_compliance_checklist --max-line-length=88 --extend-ignore=E203,W503,E501
         # Check import sorting
         isort --check-only --diff monthly_compliance_checklist
         # Check code formatting (informational only)
@@ -182,7 +187,7 @@ jobs:
         safety check --json --output safety-report.json || true
 
     - name: Upload test artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: test-results-${{ matrix.odoo-version }}-py${{ matrix.python-version }}

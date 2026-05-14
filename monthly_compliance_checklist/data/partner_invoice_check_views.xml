@@ -18,7 +18,7 @@
                             <field name="valid_until"/>
                         </group>
                     </group>
-                    
+
                     <group string="Partner Invoice Configuration">
                         <group string="Partner and Type">
                             <field name="partner_id" required="1"/>

@@ -18,7 +18,7 @@
                             <field name="valid_until"/>
                         </group>
                     </group>
-                    
+
                     <group string="Invoice Filter">
                         <group string="Invoice Type">
                             <field name="move_type"/>
@@ -37,7 +37,7 @@
                             </div>
                         </group>
                     </group>
-                    
+
                     <group string="Attachment Requirements">
                         <group string="File Type and Count">
                             <field name="attachment_types"/>

@@ -7,26 +7,26 @@
         <field name="arch" type="xml">
             <form string="Checklist Item">
                 <header>
-                    <button name="debug_search_criteria" string="Debug Search" 
+                    <button name="debug_search_criteria" string="Debug Search"
                             type="object" class="btn-warning"/>
-                    <button name="reevaluate_condition" string="Reevaluate" 
+                    <button name="reevaluate_condition" string="Reevaluate"
                             type="object" class="btn-info"/>
-                    <button name="action_mark_complete" string="Mark Complete" 
+                    <button name="action_mark_complete" string="Mark Complete"
                             type="object" class="btn-primary"
                             attrs="{'invisible': ['|', ('is_completed', '=', True), ('item_type', '!=', 'manual')]}"/>
-                    <button name="action_mark_incomplete" string="Mark Incomplete" 
+                    <button name="action_mark_incomplete" string="Mark Incomplete"
                             type="object" class="btn-secondary"
                             attrs="{'invisible': ['|', ('is_completed', '=', False), ('item_type', '!=', 'manual')]}"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button name="action_view_transactions" type="object" 
+                        <button name="action_view_transactions" type="object"
                                 class="oe_stat_button" icon="fa-list-alt"
                                 attrs="{'invisible': [('transaction_count', '=', 0)]}">
                             <field name="transaction_count" widget="statinfo" string="Transactions"/>
                         </button>
                     </div>
-                    
+
                     <group>
                         <group>
                             <field name="name"/>
@@ -37,16 +37,16 @@
                         <group>
                             <field name="is_completed"/>
                             <field name="completion_date"/>
-                            <field name="required_transaction_type" 
+                            <field name="required_transaction_type"
                                    attrs="{'invisible': [('item_type', '!=', 'account')]}"/>
                         </group>
                     </group>
-                    
+
                     <group>
                         <group>
-                            <field name="account_id" 
+                            <field name="account_id"
                                    attrs="{'invisible': [('item_type', '!=', 'account')], 'required': [('item_type', '=', 'account')]}"/>
-                            <field name="partner_id" 
+                            <field name="partner_id"
                                    attrs="{'invisible': [('item_type', '!=', 'partner')], 'required': [('item_type', '=', 'partner')]}"/>
                         </group>
                         <group>
@@ -54,7 +54,7 @@
                             <field name="debug_info" widget="text"/>
                         </group>
                     </group>
-                    
+
                     <notebook>
                         <page string="Related Transactions" attrs="{'invisible': [('transaction_count', '=', 0)]}">
                             <field name="related_moves" nolabel="1" readonly="1">

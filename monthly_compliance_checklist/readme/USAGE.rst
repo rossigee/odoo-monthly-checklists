@@ -46,7 +46,7 @@ Working with Templates
 1. **Accounting → Compliance → Check Templates**
 2. Click "Create"
 3. Fill in the basic information:
-   
+
    * Name and sequence
    * Check type
    * Validity period (optional)

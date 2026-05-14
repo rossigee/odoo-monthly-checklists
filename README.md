@@ -32,7 +32,7 @@ Access **Accounting → Compliance → Monthly Checklists** to view and manage c
 ## 📋 Requirements
 
 - **Odoo**: 16.0 or later
-- **Dependencies**: 
+- **Dependencies**:
   - `account` (Odoo Accounting)
   - `mail` (Odoo Mail)
   - `base_tier_validation` (OCA - optional for advanced workflows)

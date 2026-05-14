@@ -18,7 +18,7 @@
                             <field name="valid_until"/>
                         </group>
                     </group>
-                    
+
                     <group string="Attachment Requirements">
                         <group string="File Type and Count">
                             <field name="attachment_types"/>

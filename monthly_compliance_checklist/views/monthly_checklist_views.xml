@@ -7,10 +7,10 @@
         <field name="arch" type="xml">
             <form string="Monthly Checklist">
                 <header>
-                    <button name="action_complete" string="Mark Complete" 
+                    <button name="action_complete" string="Mark Complete"
                             type="object" class="btn-primary"
                             attrs="{'invisible': [('state', '!=', 'active')]}"/>
-                    <button name="action_reopen" string="Reopen" 
+                    <button name="action_reopen" string="Reopen"
                             type="object" class="btn-secondary"
                             attrs="{'invisible': [('state', '!=', 'completed')]}"/>
                     <field name="state" widget="statusbar"/>
@@ -24,18 +24,18 @@
                             <field name="completed_items" widget="statinfo" string="Completed"/>
                         </button>
                     </div>
-                    
+
                     <group>
                         <group>
                             <field name="period_date" attrs="{'readonly': [('id', '!=', False)], 'invisible': [('id', '!=', False)]}"/>
                             <field name="period_display" attrs="{'invisible': [('id', '=', False)]}"/>
                         </group>
                         <group>
-                            <field name="completion_percentage" widget="progressbar" 
+                            <field name="completion_percentage" widget="progressbar"
                                    attrs="{'invisible': [('id', '=', False)]}"/>
                         </group>
                     </group>
-                    
+
                     <notebook attrs="{'invisible': [('id', '=', False)]}">
                         <page string="Check Instances">
                             <field name="check_instances" nolabel="1">
@@ -46,10 +46,10 @@
                                     <field name="is_completed"/>
                                     <field name="validation_message"/>
                                     <field name="related_move_ids" invisible="1"/>
-                                    <button name="action_view_related_moves" type="object" 
+                                    <button name="action_view_related_moves" type="object"
                                             icon="fa-external-link" title="View Related Transactions"
                                             attrs="{'invisible': [('related_move_ids', '=', [])]}"/>
-                                    <button name="reevaluate_condition" type="object" 
+                                    <button name="reevaluate_condition" type="object"
                                             icon="fa-refresh" title="Re-evaluate Condition"/>
                                 </tree>
                             </field>
@@ -102,13 +102,13 @@
                                 </div>
                                 <div class="o_kanban_record_body">
                                     <div class="progress">
-                                        <div class="progress-bar" role="progressbar" 
+                                        <div class="progress-bar" role="progressbar"
                                              t-att-style="'width: ' + record.completion_percentage.value + '%'">
                                             <t t-esc="Math.round(record.completion_percentage.value)"/>%
                                         </div>
                                     </div>
                                     <div class="mt-2">
-                                        <i class="fa fa-check-circle text-success"/> 
+                                        <i class="fa fa-check-circle text-success"/>
                                         <t t-esc="record.completed_items.value"/> / <t t-esc="record.total_items.value"/> items
                                     </div>
                                 </div>

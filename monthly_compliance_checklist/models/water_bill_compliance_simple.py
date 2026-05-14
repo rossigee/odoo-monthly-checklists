@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+from odoo import api, fields, models
 
 
 class WaterBillCompliance(models.Model):
@@ -10,14 +10,14 @@ class WaterBillCompliance(models.Model):
     _name = 'water.bill.compliance'
     _inherit = 'compliance.condition.abstract'
     _description = 'Water Bill Compliance Condition'
-    
+
     # Water bill specific fields (simplified)
     minimum_amount = fields.Float(
         string='Minimum Expected Amount',
         default=25.0,
         help='Minimum expected invoice amount for validation'
     )
-    
+
     # Simple boolean fields without compute methods
     step_1_data_imported = fields.Boolean('Usage Data Imported', default=False)
     step_2_invoice_created = fields.Boolean('Invoice Created', default=False)
@@ -25,7 +25,7 @@ class WaterBillCompliance(models.Model):
     step_4_bank_reconciled = fields.Boolean('Bank Reconciled', default=False)
     step_5_invoice_reconciled = fields.Boolean('Invoice Reconciled', default=False)
     step_6_notification_sent = fields.Boolean('Notification Sent', default=False)
-    
+
     def _compute_condition_state(self):
         """Simplified condition state computation"""
         for condition in self:
@@ -40,7 +40,7 @@ class WaterBillCompliance(models.Model):
                 condition.condition_state = 'complete'
             else:
                 condition.condition_state = 'incomplete'
-    
+
     def _run_validation_checks(self):
         """Simplified validation checks"""
         return [{
@@ -49,7 +49,7 @@ class WaterBillCompliance(models.Model):
             'message': 'Water bill process validation',
             'details': 'Simplified validation for testing'
         }]
-    
+
     @api.model
     def create_for_checklist(self, checklist_id, year, month):
         """Factory method to create water bill compliance condition"""

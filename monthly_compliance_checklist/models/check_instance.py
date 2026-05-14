@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+from odoo import api, fields, models
 
 
 class CheckInstance(models.Model):
@@ -12,10 +12,10 @@ class CheckInstance(models.Model):
     _description = 'Check Instance'
     _inherit = ['mail.thread']
     _order = 'sequence, name'
-    
+
     name = fields.Char(string='Check Name', required=True)
     sequence = fields.Integer(string='Sequence', default=10)
-    
+
     # References
     template_id = fields.Many2one(
         'check.template',
@@ -29,11 +29,11 @@ class CheckInstance(models.Model):
         required=True,
         ondelete='cascade'
     )
-    
+
     # Time tracking - computed from checklist
     year = fields.Integer(string='Year', related='checklist_id.year', store=True)
     month = fields.Integer(string='Month', related='checklist_id.month', store=True)
-    
+
     # Status tracking
     is_completed = fields.Boolean(
         string='Completed',
@@ -41,7 +41,7 @@ class CheckInstance(models.Model):
         store=True
     )
     completion_date = fields.Datetime(string='Completion Date')
-    
+
     # Validation details
     validation_message = fields.Text(
         string='Validation Details',
@@ -66,7 +66,7 @@ class CheckInstance(models.Model):
         string='Related Moves',
         help='Account moves that satisfy this condition'
     )
-    
+
     @api.depends('template_id', 'year', 'month')
     def _compute_is_completed(self):
         """Evaluate completion status using template condition"""
@@ -102,11 +102,11 @@ class CheckInstance(models.Model):
                 instance.completion_date = fields.Datetime.now()
             elif not is_met:
                 instance.completion_date = False
-    
+
     def reevaluate_condition(self):
         """Manually trigger condition re-evaluation"""
         self._compute_is_completed()
-    
+
     @api.depends('template_id', 'year', 'month')
     def _compute_debug_info(self):
         """Show debug information about search criteria"""
@@ -116,11 +116,11 @@ class CheckInstance(models.Model):
             debug_lines.append(f"Template Type: {instance.template_id.template_type if instance.template_id else 'None'}")
             debug_lines.append(f"Year: {instance.year}")
             debug_lines.append(f"Month: {instance.month}")
-            
+
             if instance.template_id:
                 template = instance.template_id
                 debug_lines.append(f"Template ID: {template.id}")
-                
+
                 if template.template_type == 'partner_payment':
                     # Check both legacy template fields and compliance check record
                     debug_lines.append(f"Legacy Template Partner: {template.partner_id.name if template.partner_id else 'None'} (ID: {template.partner_id.id if template.partner_id else 'None'})")
@@ -141,7 +141,7 @@ class CheckInstance(models.Model):
                             debug_lines.append("Compliance Check Partner: No partner_id field found")
                     else:
                         debug_lines.append("No compliance check record linked")
-                    
+
                     # Test the actual evaluation method
                     if instance.year and instance.month:
                         debug_lines.append("=== TESTING ACTUAL EVALUATION ===")
@@ -157,7 +157,7 @@ class CheckInstance(models.Model):
                                 debug_lines.append(f"Transaction IDs: {details['move_ids'][:5]}{'...' if len(details['move_ids']) > 5 else ''}")
                         except Exception as e:
                             debug_lines.append(f"Error in evaluation: {e}")
-                        
+
                         # Also show what domain SHOULD be used for partner payment
                         debug_lines.append("=== EXPECTED DOMAIN FOR PARTNER PAYMENT ===")
                         import calendar
@@ -165,20 +165,20 @@ class CheckInstance(models.Model):
                         start_date = date(instance.year, instance.month, 1)
                         last_day = calendar.monthrange(instance.year, instance.month)[1]
                         end_date = date(instance.year, instance.month, last_day)
-                        
+
                         debug_lines.append(f"Date Range: {start_date} to {end_date}")
-                        
+
                         expected_domain = [
                             ('date', '>=', start_date),
                             ('date', '<=', end_date),
                             ('state', '=', 'posted'),
                         ]
-                        
+
                         # Use the compliance check partner if available
                         if template.compliance_check_id and hasattr(template.compliance_check_id, 'partner_id') and template.compliance_check_id.partner_id:
                             expected_domain.append(('partner_id', '=', template.compliance_check_id.partner_id.id))
                             debug_lines.append(f"Expected Domain (with partner filter): {expected_domain}")
-                            
+
                             # Test this domain
                             try:
                                 moves = instance.env['account.move'].search(expected_domain)
@@ -192,9 +192,9 @@ class CheckInstance(models.Model):
                                 debug_lines.append(f"Error testing partner domain: {e}")
                         else:
                             debug_lines.append("No partner available for filtering")
-                
+
             instance.debug_info = '\n'.join(debug_lines)
-    
+
     def action_view_related_moves(self):
         """Open related moves"""
         return {

@@ -18,7 +18,7 @@
                             <field name="valid_until"/>
                         </group>
                     </group>
-                    
+
                     <group string="Partner Payment Configuration">
                         <group string="Partner Details">
                             <field name="partner_id" required="1"/>

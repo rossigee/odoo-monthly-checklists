@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+from odoo import fields, models
 from odoo.exceptions import UserError
 
 
 class ComplianceCondition(models.AbstractModel):
     """
     Abstract model for compliance conditions that require tier validation.
-    
+
     This model provides the foundation for all compliance conditions that need
     to be validated through a multi-tier approval process. Each compliance
     condition represents a business process that must be completed monthly.
-    
+
     Examples:
     - Electric bill compliance (data import → invoice → payment → reconciliation)
-    - Rent payment compliance  
+    - Rent payment compliance
     - Payroll processing compliance
     """
     _name = 'compliance.condition.abstract'
@@ -24,8 +24,8 @@ class ComplianceCondition(models.AbstractModel):
 
     # Basic identification
     name = fields.Char(
-        string='Condition Name', 
-        required=True, 
+        string='Condition Name',
+        required=True,
         tracking=True,
         help='Name of this compliance condition'
     )
@@ -34,25 +34,25 @@ class ComplianceCondition(models.AbstractModel):
         help='Detailed description of what this condition validates'
     )
     sequence = fields.Integer(
-        string='Sequence', 
+        string='Sequence',
         default=10,
         help='Order of execution within the monthly checklist'
     )
-    
+
     # Time period tracking
     year = fields.Integer(
-        string='Year', 
-        required=True, 
+        string='Year',
+        required=True,
         tracking=True,
         help='Year this condition applies to'
     )
     month = fields.Integer(
-        string='Month', 
-        required=True, 
+        string='Month',
+        required=True,
         tracking=True,
         help='Month this condition applies to (1-12)'
     )
-    
+
     # Compliance checklist relationship
     checklist_id = fields.Many2one(
         'monthly.checklist',
@@ -61,7 +61,7 @@ class ComplianceCondition(models.AbstractModel):
         ondelete='cascade',
         help='The monthly checklist this condition belongs to'
     )
-    
+
     # Condition state and validation
     condition_state = fields.Selection([
         ('draft', 'Draft'),
@@ -71,12 +71,12 @@ class ComplianceCondition(models.AbstractModel):
         ('validated', 'Validated'),
         ('failed', 'Failed')
     ], string='Condition State', default='draft', tracking=True)
-    
+
     # Tier validation configuration (temporarily disabled)
     # _state_from = ['draft', 'incomplete', 'warnings', 'complete']
     # _state_to = ['validated']
     # _tier_validation_manual_config = False
-    
+
     # Validation tracking
     last_validation_date = fields.Datetime(
         string='Last Validation',
@@ -86,7 +86,7 @@ class ComplianceCondition(models.AbstractModel):
         string='Validation Notes',
         help='Notes from the validation process'
     )
-    
+
     # Warning and error tracking
     warning_count = fields.Integer(
         string='Warning Count',
@@ -95,12 +95,12 @@ class ComplianceCondition(models.AbstractModel):
         help='Number of non-blocking validation warnings'
     )
     error_count = fields.Integer(
-        string='Error Count', 
+        string='Error Count',
         compute='_compute_validation_status',
         store=True,
         help='Number of blocking validation errors'
     )
-    
+
     # Validation details (temporarily disabled)
     # validation_details = fields.One2many(
     #     'compliance.validation.detail',
@@ -108,7 +108,7 @@ class ComplianceCondition(models.AbstractModel):
     #     string='Validation Details',
     #     help='Detailed validation results and messages'
     # )
-    
+
     # Temporarily simplified validation status computation
     def _compute_validation_status(self):
         """Compute warning and error counts (simplified)"""
@@ -116,19 +116,19 @@ class ComplianceCondition(models.AbstractModel):
             # Set to zero until validation details are re-enabled
             condition.warning_count = 0
             condition.error_count = 0
-    
+
     # @api.model
     # def _get_under_validation_exceptions(self):
     #     """Define fields that can be modified during validation"""
     #     return ['validation_notes', 'condition_state']
-    
+
     def _compute_condition_state(self):
         """
         Abstract method to compute condition state.
         Must be implemented by concrete models.
         """
         raise NotImplementedError("Subclasses must implement _compute_condition_state")
-    
+
     def validate_condition(self):
         """
         Run validation checks for this condition.
@@ -142,28 +142,28 @@ class ComplianceCondition(models.AbstractModel):
 
         # Run condition-specific validation
         validation_results = self._run_validation_checks()
-        
+
         # Update condition state based on results
         self._compute_condition_state()
-        
+
         # Update validation timestamp
         self.last_validation_date = fields.Datetime.now()
-        
+
         return validation_results
-    
+
     def _run_validation_checks(self):
         """
         Abstract method to run validation checks.
         Must be implemented by concrete models.
-        
+
         Returns: List of dicts with keys:
         - check_name: Name of the validation check
-        - status: 'success', 'warning', or 'error'  
+        - status: 'success', 'warning', or 'error'
         - message: Human-readable message
         - details: Optional detailed information
         """
         raise NotImplementedError("Subclasses must implement _run_validation_checks")
-    
+
     def action_validate_condition(self):
         """Button action to manually trigger validation"""
         self.validate_condition()
@@ -176,7 +176,7 @@ class ComplianceCondition(models.AbstractModel):
                 'type': 'info' if self.error_count == 0 else 'warning'
             }
         }
-    
+
     def action_view_validation_details(self):
         """Open validation details view (temporarily disabled)"""
         return {
@@ -188,12 +188,12 @@ class ComplianceCondition(models.AbstractModel):
                 'type': 'info'
             }
         }
-    
+
     def request_validation(self):
         """Request validation (tier validation temporarily disabled)"""
         # Run validation checks first
         self.validate_condition()
-        
+
         # Simple state change without tier validation
         if self.error_count == 0:
             self.condition_state = 'validated'
@@ -222,7 +222,7 @@ class ComplianceCondition(models.AbstractModel):
 #     _name = 'compliance.validation.detail'
 #     _description = 'Compliance Validation Detail'
 #     _order = 'condition_id, sequence, check_name'
-#     
+#
 #     condition_id = fields.Many2one(
 #         'compliance.condition.abstract',
 #         string='Condition',
@@ -233,7 +233,7 @@ class ComplianceCondition(models.AbstractModel):
 #     check_name = fields.Char(string='Check Name', required=True)
 #     status = fields.Selection([
 #         ('success', 'Success'),
-#         ('warning', 'Warning'), 
+#         ('warning', 'Warning'),
 #         ('error', 'Error')
 #     ], string='Status', required=True)
 #     message = fields.Text(string='Message', required=True)

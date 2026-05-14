@@ -1,15 +1,15 @@
-from . import abstract_compliance_check
-from . import partner_payment_check
-from . import partner_invoice_check
-from . import payment_attachment_check
-from . import invoice_attachment_check
-from . import attachment_check
-from . import compliance_view_renderer
-from . import check_template
-from . import check_instance
-from . import monthly_checklist
-from . import account_move
-from . import compliance_backfill_wizard
-from . import compliance_condition
-from . import electric_bill_compliance
-from . import water_bill_compliance
+from . import abstract_compliance_check  # noqa: F401
+from . import account_move  # noqa: F401
+from . import attachment_check  # noqa: F401
+from . import check_instance  # noqa: F401
+from . import check_template  # noqa: F401
+from . import compliance_backfill_wizard  # noqa: F401
+from . import compliance_condition  # noqa: F401
+from . import compliance_view_renderer  # noqa: F401
+from . import electric_bill_compliance  # noqa: F401
+from . import invoice_attachment_check  # noqa: F401
+from . import monthly_checklist  # noqa: F401
+from . import partner_invoice_check  # noqa: F401
+from . import partner_payment_check  # noqa: F401
+from . import payment_attachment_check  # noqa: F401
+from . import water_bill_compliance  # noqa: F401

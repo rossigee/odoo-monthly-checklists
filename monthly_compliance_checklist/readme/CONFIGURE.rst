@@ -5,16 +5,16 @@ Initial Setup
 -------------
 
 1. **User Permissions**
-   
+
    Assign users to the appropriate groups:
-   
+
    * **Accounting / Billing**: Read and write access to checklists
    * **Accounting / Billing Administrator**: Full access including deletion
 
 2. **Create Check Templates**
-   
+
    Navigate to **Accounting → Compliance → Check Templates** and create templates for your compliance requirements:
-   
+
    * Set a descriptive name and sequence
    * Choose the check type (partner payment, invoice, attachment, etc.)
    * Configure type-specific settings (partners, accounts, amounts, etc.)
@@ -22,9 +22,9 @@ Initial Setup
    * Enable "Auto Create Monthly" for automatic checklist generation
 
 3. **Configure Cron Job**
-   
+
    The module includes a daily cron job that creates monthly checklists. To adjust:
-   
+
    * Go to **Settings → Technical → Automation → Scheduled Actions**
    * Find "Create Monthly Compliance Checklists"
    * Adjust the execution time or frequency as needed

@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
 import calendar
+
+from odoo import api, fields, models
 
 
 class ElectricBillCompliance(models.Model):
     """
     Electric Bill Compliance Condition
-    
+
     Validates the complete electric bill payment process:
     1. Electric bill data imported (non-zero units)
     2. Invoice created with attachment (above minimum amount)
@@ -19,7 +20,7 @@ class ElectricBillCompliance(models.Model):
     _name = 'electric.bill.compliance'
     _inherit = 'compliance.condition.abstract'
     _description = 'Electric Bill Compliance Condition'
-    
+
     partner_id = fields.Many2one(
         'res.partner',
         string='Utility Provider',
@@ -30,7 +31,7 @@ class ElectricBillCompliance(models.Model):
         default=50.0,
         help='Minimum expected invoice amount for validation'
     )
-    
+
     step_1_data_imported = fields.Boolean(
         string='Data Imported',
         default=False,
@@ -61,7 +62,7 @@ class ElectricBillCompliance(models.Model):
         default=False,
         help='Summary has been posted to communication channel'
     )
-    
+
     def _compute_validation_steps(self):
         """Compute the status of each validation step"""
         for condition in self:
@@ -79,7 +80,7 @@ class ElectricBillCompliance(models.Model):
                 condition.step_4_bank_reconciled = False
                 condition.step_5_invoice_reconciled = False
                 condition.step_6_notification_sent = False
-    
+
     def _check_step_1_data_imported(self):
         """Check if electric bill data has been imported for the month"""
         if not self.year or not self.month:
@@ -92,7 +93,7 @@ class ElectricBillCompliance(models.Model):
             ('units', '>', 0)
         ], limit=1)
         return bool(electric_bill)
-    
+
     def _invoice_domain(self, start_date, end_date):
         """Base domain for electric bill invoice searches"""
         domain = [
@@ -122,41 +123,41 @@ class ElectricBillCompliance(models.Model):
         return self.env['account.move'].search(
             self._invoice_domain(start_date, end_date)
         ).filtered(lambda m: m.attachment_ids)
-    
+
     def _check_step_3_payment_processed(self):
         """Check if payment has been processed with attachment"""
         invoices = self._find_month_invoices()
         if not invoices:
             return False
-            
+
         for invoice in invoices:
             payments = invoice._get_reconciled_payments()
             for payment in payments:
                 if payment.attachment_ids:
                     return True
         return False
-    
+
     def _check_step_4_bank_reconciled(self):
         """Check if bank statement has been reconciled"""
         invoices = self._find_month_invoices()
         if not invoices:
             return False
-            
+
         for invoice in invoices:
             payments = invoice._get_reconciled_payments()
             for payment in payments:
                 if payment.is_reconciled:
                     return True
         return False
-    
+
     def _check_step_5_invoice_reconciled(self):
         """Check if invoice is fully reconciled"""
         invoices = self._find_month_invoices()
         if not invoices:
             return False
-            
+
         return any(inv.payment_state == 'paid' for inv in invoices)
-    
+
     def _check_step_6_notification_sent(self):
         """Check if notification has been sent to communication channel"""
         if not self.year or not self.month:
@@ -173,25 +174,25 @@ class ElectricBillCompliance(models.Model):
             if messages:
                 return True
         return False
-    
+
     def _get_month_date_range(self):
         """Get start and end dates for the condition's month"""
         if not self.year or not self.month:
             return None, None
-            
+
         start_date = fields.Date.from_string(f"{self.year}-{self.month:02d}-01")
         last_day = calendar.monthrange(self.year, self.month)[1]
         end_date = fields.Date.from_string(f"{self.year}-{self.month:02d}-{last_day}")
-        
+
         return start_date, end_date
-    
+
     def _compute_condition_state(self):
         """Compute overall condition state based on validation steps"""
         for condition in self:
             if condition.error_count > 0:
                 condition.condition_state = 'incomplete'
             elif condition.warning_count > 0:
-                condition.condition_state = 'warnings'  
+                condition.condition_state = 'warnings'
             elif all([
                 condition.step_1_data_imported,
                 condition.step_2_invoice_created,
@@ -203,11 +204,11 @@ class ElectricBillCompliance(models.Model):
                 condition.condition_state = 'complete'
             else:
                 condition.condition_state = 'incomplete'
-    
+
     def _run_validation_checks(self):
         """Run all validation checks and return results"""
         results = []
-        
+
         if self.step_1_data_imported:
             results.append({
                 'check_name': 'Electric Bill Data Import',
@@ -221,7 +222,7 @@ class ElectricBillCompliance(models.Model):
                 'message': f'No electric bill data found for {self.year}/{self.month:02d}',
                 'details': 'Please import electric bill data with non-zero units'
             })
-        
+
         invoices = self._find_month_invoices()
         if self.step_2_invoice_created:
             invoice_names = ', '.join(invoices.mapped('name')) if invoices else 'Found'
@@ -234,15 +235,15 @@ class ElectricBillCompliance(models.Model):
         else:
             results.append({
                 'check_name': 'Invoice Creation',
-                'status': 'error', 
+                'status': 'error',
                 'message': 'No valid invoice found for this month',
                 'details': f'Expected posted invoice >= {self.minimum_amount} with attachment'
             })
-        
+
         if self.step_3_payment_processed:
             results.append({
                 'check_name': 'Payment Processing',
-                'status': 'success', 
+                'status': 'success',
                 'message': 'Payment processed with attachment',
             })
         else:
@@ -252,7 +253,7 @@ class ElectricBillCompliance(models.Model):
                 'message': 'No payment with attachment found',
                 'details': 'Payment must have supporting attachment'
             })
-        
+
         if self.step_4_bank_reconciled:
             results.append({
                 'check_name': 'Bank Reconciliation',
@@ -261,11 +262,11 @@ class ElectricBillCompliance(models.Model):
             })
         else:
             results.append({
-                'check_name': 'Bank Reconciliation', 
+                'check_name': 'Bank Reconciliation',
                 'status': 'error',
                 'message': 'Payment not reconciled with bank statement'
             })
-        
+
         if self.step_5_invoice_reconciled:
             results.append({
                 'check_name': 'Invoice Reconciliation',
@@ -275,10 +276,10 @@ class ElectricBillCompliance(models.Model):
         else:
             results.append({
                 'check_name': 'Invoice Reconciliation',
-                'status': 'error', 
+                'status': 'error',
                 'message': 'Invoice not fully reconciled'
             })
-        
+
         if self.step_6_notification_sent:
             results.append({
                 'check_name': 'Notification Sent',
@@ -292,9 +293,9 @@ class ElectricBillCompliance(models.Model):
                 'message': 'No notification found in communication channel',
                 'details': 'Consider posting summary to #payments channel'
             })
-        
+
         return results
-    
+
     @api.model
     def create_for_checklist(self, checklist_id, year, month):
         """Factory method to create electric bill compliance condition"""
