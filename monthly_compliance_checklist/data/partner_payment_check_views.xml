@@ -24,18 +24,20 @@
                             <field name="partner_id" required="1"/>
                             <div colspan="2">
                                 <p class="text-info">
-                                    <i class="fa fa-info-circle"/> This check validates that the specified partner has made or received at least one payment within the monthly period being evaluated.
+                                    <i class="fa fa-info-circle"/> This check validates that the specified partner has made or received payments within the monthly period. Choose whether to check individual transaction amounts or total sum.
                                 </p>
                             </div>
                         </group>
                         <group string="Amount Validation (Optional)">
+                            <field name="check_type"/>
                             <field name="minimum_amount"/>
                             <field name="maximum_amount"/>
                             <div colspan="2">
                                 <p class="text-muted">
                                     <i class="fa fa-info-circle"/> Set minimum and/or maximum payment amounts to validate.
+                                    For "Individual" checks, at least one transaction must meet the criteria.
+                                    For "Sum" checks, the total of all transactions must meet the criteria.
                                     Leave both at 0 to accept any payment amount.
-                                    Examples: Min 500 for rent payments, Max 100 for small expenses.
                                 </p>
                             </div>
                         </group>
@@ -62,6 +64,7 @@
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
                 <field name="partner_id"/>
+                <field name="check_type"/>
                 <field name="minimum_amount"/>
                 <field name="maximum_amount"/>
                 <field name="require_reconciliation"/>
@@ -78,12 +81,15 @@
             <search string="Partner Payment Checks">
                 <field name="name"/>
                 <field name="partner_id"/>
+                <field name="check_type"/>
                 <field name="minimum_amount"/>
                 <field name="maximum_amount"/>
                 <filter name="active" string="Active" domain="[('active', '=', True)]"/>
                 <filter name="with_min_amount" string="Has Minimum Amount" domain="[('minimum_amount', '>', 0)]"/>
                 <filter name="with_max_amount" string="Has Maximum Amount" domain="[('maximum_amount', '>', 0)]"/>
                 <filter name="requires_reconciliation" string="Requires Reconciliation" domain="[('require_reconciliation', '=', True)]"/>
+                <filter name="check_type_individual" string="Individual Check" domain="[('check_type', '=', 'individual')]"/>
+                <filter name="check_type_sum" string="Sum Check" domain="[('check_type', '=', 'sum')]"/>
                 <group expand="0" string="Group By">
                     <filter name="group_by_partner" string="Partner" domain="[]" context="{'group_by': 'partner_id'}"/>
                 </group>

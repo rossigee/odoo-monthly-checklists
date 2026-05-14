@@ -34,7 +34,7 @@ jobs:
     - name: Checkout module
       uses: actions/checkout@v4
       with:
-        path: vault_connector
+        path: monthly_compliance_checklist
 
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
@@ -94,7 +94,7 @@ jobs:
       run: |
         mkdir -p addons
         # Link the module under test
-        ln -s $(pwd)/vault_connector addons/vault_connector
+        ln -s $(pwd)/monthly_compliance_checklist addons/monthly_compliance_checklist
 
     - name: Initialize Odoo database
       run: |
@@ -109,7 +109,7 @@ jobs:
     - name: Install module
       run: |
         cd odoo
-        python odoo-bin -d test_db --init=vault_connector --stop-after-init --addons-path=../addons --log-level=info
+        python odoo-bin -d test_db --init=monthly_compliance_checklist --stop-after-init --addons-path=../addons --log-level=info
       env:
         PGHOST: localhost
         PGPORT: 5432
@@ -119,13 +119,13 @@ jobs:
     - name: Run module tests
       run: |
         cd odoo
-        coverage run --source=../addons/vault_connector \
+        coverage run --source=../addons/monthly_compliance_checklist \
           odoo-bin -d test_db \
           --test-enable \
           --stop-after-init \
           --addons-path=../addons \
           --log-level=test \
-          -i vault_connector
+          -i monthly_compliance_checklist
       env:
         PGHOST: localhost
         PGPORT: 5432
@@ -135,8 +135,8 @@ jobs:
     - name: Generate coverage report
       run: |
         cd odoo
-        coverage report --include="../addons/vault_connector/*"
-        coverage xml --include="../addons/vault_connector/*" -o coverage.xml
+        coverage report --include="../addons/monthly_compliance_checklist/*"
+        coverage xml --include="../addons/monthly_compliance_checklist/*" -o coverage.xml
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
@@ -149,7 +149,7 @@ jobs:
       run: |
         cd odoo
         # Test upgrade scenario
-        python odoo-bin -d test_db --update=vault_connector --stop-after-init --addons-path=../addons
+        python odoo-bin -d test_db --update=monthly_compliance_checklist --stop-after-init --addons-path=../addons
       env:
         PGHOST: localhost
         PGPORT: 5432
@@ -160,24 +160,24 @@ jobs:
       run: |
         pip install flake8 black isort
         # Check Python code style
-        flake8 vault_connector --max-line-length=88 --extend-ignore=E203,W503
+        flake8 monthly_compliance_checklist --max-line-length=88 --extend-ignore=E203,W503
         # Check import sorting
-        isort --check-only --diff vault_connector
+        isort --check-only --diff monthly_compliance_checklist
         # Check code formatting (informational only)
-        black --check vault_connector || echo "Code formatting could be improved"
+        black --check monthly_compliance_checklist || echo "Code formatting could be improved"
 
     - name: Validate XML files
       run: |
         # Install xmllint
         sudo apt-get install -y libxml2-utils
         # Validate all XML files
-        find vault_connector -name "*.xml" -exec xmllint --noout {} \; || exit 1
+        find monthly_compliance_checklist -name "*.xml" -exec xmllint --noout {} \; || exit 1
 
     - name: Security scan
       run: |
         pip install bandit safety
         # Security scan for Python code
-        bandit -r vault_connector -f json -o bandit-report.json || true
+        bandit -r monthly_compliance_checklist -f json -o bandit-report.json || true
         # Check for known security vulnerabilities in dependencies
         safety check --json --output safety-report.json || true
 

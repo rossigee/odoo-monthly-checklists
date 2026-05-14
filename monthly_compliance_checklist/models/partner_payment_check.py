@@ -24,6 +24,10 @@ class PartnerPaymentCheck(models.Model):
         required=True,
         help='Specific partner that must have transactions'
     )
+    check_type = fields.Selection([
+        ('individual', 'At least one transaction >= minimum'),
+        ('sum', 'Total sum >= minimum')
+    ], string='Check Type', default='individual', required=True)
     minimum_amount = fields.Float(
         string='Minimum Amount',
         help='Minimum payment amount required (leave 0 for no minimum)'
@@ -44,7 +48,7 @@ class PartnerPaymentCheck(models.Model):
         help='Human-readable description of this check condition'
     )
     
-    @api.depends('partner_id', 'minimum_amount', 'maximum_amount', 'require_reconciliation')
+    @api.depends('partner_id', 'check_type', 'minimum_amount', 'maximum_amount', 'require_reconciliation')
     def _compute_condition_summary(self):
         """Generate human-readable summary of the check condition"""
         for record in self:
@@ -52,7 +56,10 @@ class PartnerPaymentCheck(models.Model):
                 record.condition_summary = "No partner specified"
                 continue
             
-            parts = [f"Partner '{record.partner_id.name}' must have at least one payment"]
+            if record.check_type == 'sum':
+                parts = [f"Partner '{record.partner_id.name}' must have total payments"]
+            else:
+                parts = [f"Partner '{record.partner_id.name}' must have at least one payment"]
             
             # Add amount conditions
             amount_conditions = []
@@ -62,7 +69,7 @@ class PartnerPaymentCheck(models.Model):
                 amount_conditions.append(f"≤ {record.maximum_amount}")
             
             if amount_conditions:
-                parts.append(f"with amount {' and '.join(amount_conditions)}")
+                parts.append(f"with {'total ' if record.check_type == 'sum' else ''}amount {' and '.join(amount_conditions)}")
             
             # Add reconciliation requirement
             if record.require_reconciliation:
@@ -75,7 +82,7 @@ class PartnerPaymentCheck(models.Model):
         """Return fields relevant for partner payment evaluation"""
         base_fields = super().get_evaluation_fields()
         return base_fields + [
-            'partner_id', 'minimum_amount', 'maximum_amount', 'require_reconciliation'
+            'partner_id', 'check_type', 'minimum_amount', 'maximum_amount', 'require_reconciliation'
         ]
     
     @classmethod
@@ -124,37 +131,6 @@ class PartnerPaymentCheck(models.Model):
         if not moves:
             return False, {'message': f'No transactions found for partner {self.partner_id.name}'}
         
-        # Check amount ranges if specified
-        if self.minimum_amount > 0 or self.maximum_amount > 0:
-            matching_moves = []
-            for move in moves:
-                amount = abs(move.amount_total)
-                
-                # Check minimum amount
-                if self.minimum_amount > 0 and amount < self.minimum_amount:
-                    continue
-                    
-                # Check maximum amount
-                if self.maximum_amount > 0 and amount > self.maximum_amount:
-                    continue
-                    
-                matching_moves.append(move)
-            
-            if not matching_moves:
-                amount_criteria = []
-                if self.minimum_amount > 0:
-                    amount_criteria.append(f'≥ {self.minimum_amount}')
-                if self.maximum_amount > 0:
-                    amount_criteria.append(f'≤ {self.maximum_amount}')
-                amount_text = ' and '.join(amount_criteria)
-                
-                return False, {
-                    'message': f'No transactions found for {self.partner_id.name} with amount {amount_text}',
-                    'move_ids': moves.ids,
-                    'found_amounts': moves.mapped('amount_total')
-                }
-            moves = self.env['account.move'].browse([m.id for m in matching_moves])
-        
         # Check reconciliation if required
         if self.require_reconciliation:
             reconciled_moves = moves.filtered(lambda m: m.payment_state == 'paid')
@@ -166,10 +142,61 @@ class PartnerPaymentCheck(models.Model):
                 }
             moves = reconciled_moves
         
+        # Calculate total amount
+        total_amount = sum(abs(m.amount_total) for m in moves)
+        
+        # Check amount conditions
+        if self.check_type == 'sum':
+            # Check total sum
+            if self.minimum_amount > 0 and total_amount < self.minimum_amount:
+                return False, {
+                    'message': f'Total payments {total_amount} < required minimum {self.minimum_amount} for {self.partner_id.name}',
+                    'move_ids': moves.ids,
+                    'total_amount': total_amount
+                }
+            if self.maximum_amount > 0 and total_amount > self.maximum_amount:
+                return False, {
+                    'message': f'Total payments {total_amount} > allowed maximum {self.maximum_amount} for {self.partner_id.name}',
+                    'move_ids': moves.ids,
+                    'total_amount': total_amount
+                }
+        else:
+            # Check individual transactions
+            if self.minimum_amount > 0 or self.maximum_amount > 0:
+                matching_moves = []
+                for move in moves:
+                    amount = abs(move.amount_total)
+                    
+                    # Check minimum amount
+                    if self.minimum_amount > 0 and amount < self.minimum_amount:
+                        continue
+                        
+                    # Check maximum amount
+                    if self.maximum_amount > 0 and amount > self.maximum_amount:
+                        continue
+                        
+                    matching_moves.append(move)
+                
+                if not matching_moves:
+                    amount_criteria = []
+                    if self.minimum_amount > 0:
+                        amount_criteria.append(f'≥ {self.minimum_amount}')
+                    if self.maximum_amount > 0:
+                        amount_criteria.append(f'≤ {self.maximum_amount}')
+                    amount_text = ' and '.join(amount_criteria)
+                    
+                    return False, {
+                        'message': f'No transactions found for {self.partner_id.name} with amount {amount_text}',
+                        'move_ids': moves.ids,
+                        'found_amounts': moves.mapped('amount_total')
+                    }
+                moves = self.env['account.move'].browse([m.id for m in matching_moves])
+                total_amount = sum(abs(m.amount_total) for m in moves)
+        
         return True, {
-            'message': f'Partner payment check passed: {len(moves)} transaction(s) found for {self.partner_id.name}',
+            'message': f'Partner payment check passed: {len(moves)} transaction(s) totaling {total_amount} for {self.partner_id.name}',
             'move_count': len(moves),
-            'total_amount': sum(moves.mapped('amount_total')),
+            'total_amount': total_amount,
             'move_ids': moves.ids,
             'partner_name': self.partner_id.name
         }
