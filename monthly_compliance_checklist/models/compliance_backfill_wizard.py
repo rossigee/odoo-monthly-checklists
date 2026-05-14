@@ -6,51 +6,53 @@ from odoo import api, fields, models
 
 
 class ComplianceBackfillWizard(models.TransientModel):
-    _name = 'compliance.backfill.wizard'
-    _description = 'Backfill Compliance Checklists Wizard'
+    _name = "compliance.backfill.wizard"
+    _description = "Backfill Compliance Checklists Wizard"
 
     template_id = fields.Many2one(
-        'compliance.template',
-        string='Template',
-        required=True
+        "compliance.template", string="Template", required=True
     )
     start_year = fields.Integer(
-        string='Start Year',
-        required=True,
-        default=lambda self: date.today().year
+        string="Start Year", required=True, default=lambda self: date.today().year
     )
-    start_month = fields.Integer(
-        string='Start Month',
-        required=True,
-        default=1
-    )
+    start_month = fields.Integer(string="Start Month", required=True, default=1)
     end_year = fields.Integer(
-        string='End Year',
-        required=True,
-        default=lambda self: date.today().year
+        string="End Year", required=True, default=lambda self: date.today().year
     )
     end_month = fields.Integer(
-        string='End Month',
-        required=True,
-        default=lambda self: date.today().month - 1
+        string="End Month", required=True, default=lambda self: date.today().month - 1
     )
     skip_existing = fields.Boolean(
-        string='Skip Existing Checklists',
+        string="Skip Existing Checklists",
         default=True,
-        help='Skip months that already have checklists'
+        help="Skip months that already have checklists",
     )
 
     # Summary fields
     months_to_create = fields.Text(
-        string='Months to Create',
-        compute='_compute_months_to_create',
-        help='List of months that will be created'
+        string="Months to Create",
+        compute="_compute_months_to_create",
+        help="List of months that will be created",
     )
 
-    @api.depends('start_year', 'start_month', 'end_year', 'end_month', 'template_id', 'skip_existing')
+    @api.depends(
+        "start_year",
+        "start_month",
+        "end_year",
+        "end_month",
+        "template_id",
+        "skip_existing",
+    )
     def _compute_months_to_create(self):
         for wizard in self:
-            if not all([wizard.start_year, wizard.start_month, wizard.end_year, wizard.end_month]):
+            if not all(
+                [
+                    wizard.start_year,
+                    wizard.start_month,
+                    wizard.end_year,
+                    wizard.end_month,
+                ]
+            ):
                 wizard.months_to_create = ""
                 continue
 
@@ -79,11 +81,13 @@ class ComplianceBackfillWizard(models.TransientModel):
         while True:
             # Check if we should skip existing
             if self.skip_existing and self.template_id:
-                existing = self.env['monthly.checklist'].search([
-                    ('template_id', '=', self.template_id.id),
-                    ('year', '=', current_year),
-                    ('month', '=', current_month)
-                ])
+                existing = self.env["monthly.checklist"].search(
+                    [
+                        ("template_id", "=", self.template_id.id),
+                        ("year", "=", current_year),
+                        ("month", "=", current_month),
+                    ]
+                )
                 if not existing:
                     months.append((current_year, current_month))
             else:
@@ -101,7 +105,7 @@ class ComplianceBackfillWizard(models.TransientModel):
 
         return months
 
-    @api.constrains('start_year', 'start_month', 'end_year', 'end_month')
+    @api.constrains("start_year", "start_month", "end_year", "end_month")
     def _check_date_range(self):
         for wizard in self:
             if wizard.start_year and wizard.end_year:
@@ -109,12 +113,16 @@ class ComplianceBackfillWizard(models.TransientModel):
                 end_date = date(wizard.end_year, wizard.end_month or 12, 1)
 
                 if start_date > end_date:
-                    raise models.ValidationError("Start date must be before or equal to end date")
+                    raise models.ValidationError(
+                        "Start date must be before or equal to end date"
+                    )
 
                 # Don't allow future dates
                 today = date.today()
                 if end_date > today.replace(day=1):
-                    raise models.ValidationError("Cannot create checklists for future months")
+                    raise models.ValidationError(
+                        "Cannot create checklists for future months"
+                    )
 
     def action_create_checklists(self):
         """Create the checklists for specified date range"""
@@ -125,36 +133,40 @@ class ComplianceBackfillWizard(models.TransientModel):
 
         if not months_to_create:
             return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': 'No Checklists Created',
-                    'message': 'No months found that need checklist creation.',
-                    'type': 'info'
-                }
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": "No Checklists Created",
+                    "message": "No months found that need checklist creation.",
+                    "type": "info",
+                },
             }
 
-        checklist_model = self.env['monthly.checklist']
+        checklist_model = self.env["monthly.checklist"]
         created_checklists = []
 
         for year, month in months_to_create:
             # Double-check for existing if skip_existing is enabled
             if self.skip_existing:
-                existing = checklist_model.search([
-                    ('template_id', '=', self.template_id.id),
-                    ('year', '=', year),
-                    ('month', '=', month)
-                ])
+                existing = checklist_model.search(
+                    [
+                        ("template_id", "=", self.template_id.id),
+                        ("year", "=", year),
+                        ("month", "=", month),
+                    ]
+                )
                 if existing:
                     continue
 
             # Create the checklist
-            checklist = checklist_model.create({
-                'template_id': self.template_id.id,
-                'year': year,
-                'month': month,
-                'name': f"{self.template_id.name} - {year}/{month:02d}"
-            })
+            checklist = checklist_model.create(
+                {
+                    "template_id": self.template_id.id,
+                    "year": year,
+                    "month": month,
+                    "name": f"{self.template_id.name} - {year}/{month:02d}",
+                }
+            )
             created_checklists.append(checklist)
 
         # Show success message
@@ -162,24 +174,24 @@ class ComplianceBackfillWizard(models.TransientModel):
         message = f"Successfully created {count} checklist{'s' if count != 1 else ''}"
 
         notification = {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': 'Checklists Created',
-                'message': message,
-                'type': 'success'
-            }
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": "Checklists Created",
+                "message": message,
+                "type": "success",
+            },
         }
 
         # If checklists were created, show them
         if created_checklists:
             return {
-                'name': 'Created Checklists',
-                'type': 'ir.actions.act_window',
-                'res_model': 'monthly.checklist',
-                'view_mode': 'tree,form',
-                'domain': [('id', 'in', [c.id for c in created_checklists])],
-                'context': {'search_default_group_by_year_month': 1}
+                "name": "Created Checklists",
+                "type": "ir.actions.act_window",
+                "res_model": "monthly.checklist",
+                "view_mode": "tree,form",
+                "domain": [("id", "in", [c.id for c in created_checklists])],
+                "context": {"search_default_group_by_year_month": 1},
             }
 
         return notification
