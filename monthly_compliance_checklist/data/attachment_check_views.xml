@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Attachment Check Form View -->
+    <record id="view_attachment_check_form" model="ir.ui.view">
+        <field name="name">compliance.check.attachment.form</field>
+        <field name="model">compliance.check.attachment</field>
+        <field name="arch" type="xml">
+            <form string="Attachment Requirements Check">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                        <group>
+                            <field name="valid_from"/>
+                            <field name="valid_until"/>
+                        </group>
+                    </group>
+
+                    <group string="Attachment Requirements Configuration">
+                        <group string="File Type Requirements">
+                            <field name="attachment_types"/>
+                            <field name="min_attachments"/>
+                            <field name="max_attachments"/>
+                            <div colspan="2">
+                                <p class="text-muted">
+                                    <i class="fa fa-info-circle"/> Set maximum to 0 for unlimited attachments.
+                                </p>
+                            </div>
+                        </group>
+                        <group string="File Validation">
+                            <field name="filename_pattern" placeholder="e.g. invoice.*\.pdf"/>
+                            <field name="min_filesize_kb"/>
+                            <field name="max_filesize_kb"/>
+                            <div colspan="2" attrs="{'invisible': [('filename_pattern', '=', False)]}">
+                                <p class="text-info">
+                                    <i class="fa fa-lightbulb-o"/> Filename pattern uses regex. Examples:<br/>
+                                    • <code>invoice.*\.pdf</code> - PDF files starting with "invoice"<br/>
+                                    • <code>.*receipt.*</code> - Any file containing "receipt"<br/>
+                                    • <code>\d{4}-\d{2}-\d{2}.*</code> - Files starting with date format YYYY-MM-DD
+                                </p>
+                            </div>
+                        </group>
+                        <group string="Transaction Scope">
+                            <field name="require_all_transactions"/>
+                            <div colspan="2" attrs="{'invisible': [('require_all_transactions', '=', False)]}">
+                                <p class="text-warning">
+                                    <i class="fa fa-exclamation-triangle"/> When enabled, ALL transactions in the period must meet attachment requirements.
+                                    When disabled, at least ONE transaction must meet requirements.
+                                </p>
+                            </div>
+                        </group>
+                        <group string="Transaction Filters">
+                            <field name="partner_filter"/>
+                            <field name="account_filter" widget="many2many_tags"/>
+                            <div colspan="2">
+                                <p class="text-muted">
+                                    <i class="fa fa-filter"/> Use filters to limit which transactions are checked for attachments.
+                                </p>
+                            </div>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Attachment Check Tree View -->
+    <record id="view_attachment_check_tree" model="ir.ui.view">
+        <field name="name">compliance.check.attachment.tree</field>
+        <field name="model">compliance.check.attachment</field>
+        <field name="arch" type="xml">
+            <tree string="Attachment Checks">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="attachment_types"/>
+                <field name="min_attachments"/>
+                <field name="max_attachments"/>
+                <field name="require_all_transactions"/>
+                <field name="partner_filter"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Attachment Check Search View -->
+    <record id="view_attachment_check_search" model="ir.ui.view">
+        <field name="name">compliance.check.attachment.search</field>
+        <field name="model">compliance.check.attachment</field>
+        <field name="arch" type="xml">
+            <search string="Attachment Checks">
+                <field name="name"/>
+                <field name="attachment_types"/>
+                <field name="partner_filter"/>
+                <field name="account_filter"/>
+                <filter name="active" string="Active" domain="[('active', '=', True)]"/>
+                <filter name="pdf_only" string="PDF Only" domain="[('attachment_types', '=', 'pdf')]"/>
+                <filter name="all_transactions" string="All Transactions Required" domain="[('require_all_transactions', '=', True)]"/>
+                <filter name="with_pattern" string="Has Filename Pattern" domain="[('filename_pattern', '!=', False)]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_by_type" string="File Type" domain="[]" context="{'group_by': 'attachment_types'}"/>
+                    <filter name="group_by_partner" string="Partner Filter" domain="[]" context="{'group_by': 'partner_filter'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Attachment Check Action -->
+    <record id="action_attachment_check" model="ir.actions.act_window">
+        <field name="name">Attachment Checks</field>
+        <field name="res_model">compliance.check.attachment</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first attachment check!
+            </p>
+            <p>
+                Attachment checks ensure transactions have required attachments with specific file criteria.
+                Examples: PDF invoices for vendor bills, receipt images for expenses, documentation for large transactions.
+            </p>
+        </field>
+    </record>
+</odoo>

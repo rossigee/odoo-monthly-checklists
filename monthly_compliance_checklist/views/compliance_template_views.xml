@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Compliance Template Form View -->
+    <record id="view_compliance_template_form" model="ir.ui.view">
+        <field name="name">compliance.template.form</field>
+        <field name="model">compliance.template</field>
+        <field name="arch" type="xml">
+            <form string="Compliance Template">
+                <header>
+                    <button name="action_backfill_checklists" string="Backfill Checklists"
+                            type="object" class="btn-secondary"/>
+                    <field name="active" widget="boolean_toggle"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="auto_create_monthly"/>
+                        </group>
+                        <group>
+                            <field name="description"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Template Checks">
+                            <p class="text-muted">Define the specific checks that should be created each month from this template.</p>
+                            <field name="template_items" nolabel="1">
+                                <tree editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="condition_type"/>
+                                    <field name="account_ids" widget="many2many_tags" optional="hide"/>
+                                    <field name="partner_ids" widget="many2many_tags" optional="hide"/>
+                                    <field name="minimum_amount" optional="hide"/>
+                                    <field name="require_attachment" optional="hide"/>
+                                    <field name="valid_from" optional="show"/>
+                                    <field name="valid_until" optional="show"/>
+                                </tree>
+                                <form>
+                                    <group>
+                                        <group>
+                                            <field name="name"/>
+                                            <field name="sequence"/>
+                                            <field name="condition_type"/>
+                                        </group>
+                                        <group>
+                                            <field name="valid_from"/>
+                                            <field name="valid_until"/>
+                                        </group>
+                                    </group>
+
+                                    <notebook>
+                                        <page string="Condition Details">
+                                            <group>
+                                                <group string="Accounts and Partners">
+                                                    <field name="account_ids" widget="many2many_tags"/>
+                                                    <field name="partner_ids" widget="many2many_tags"/>
+                                                </group>
+                                                <group string="Transaction Filters">
+                                                    <field name="transaction_type"/>
+                                                    <field name="move_type"/>
+                                                </group>
+                                            </group>
+
+                                            <group>
+                                                <group string="Amount Conditions">
+                                                    <field name="minimum_amount"/>
+                                                    <field name="maximum_amount"/>
+                                                </group>
+                                                <group string="Additional Requirements">
+                                                    <field name="require_attachment"/>
+                                                    <field name="require_reconciliation"/>
+                                                </group>
+                                            </group>
+                                        </page>
+                                    </notebook>
+                                </form>
+                            </field>
+                        </page>
+
+                        <page string="Monthly Checklists">
+                            <field name="monthly_checklists" nolabel="1" readonly="1">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="year"/>
+                                    <field name="month"/>
+                                    <field name="state"/>
+                                    <field name="completion_percentage" widget="progressbar"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Compliance Template Tree View -->
+    <record id="view_compliance_template_tree" model="ir.ui.view">
+        <field name="name">compliance.template.tree</field>
+        <field name="model">compliance.template</field>
+        <field name="arch" type="xml">
+            <tree string="Compliance Templates">
+                <field name="name"/>
+                <field name="active"/>
+                <field name="auto_create_monthly"/>
+                <field name="description"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Compliance Template Action -->
+    <record id="action_compliance_template" model="ir.actions.act_window">
+        <field name="name">Compliance Templates</field>
+        <field name="res_model">compliance.template</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first compliance template!
+            </p>
+            <p>
+                Templates define the specific checks that must be completed each month.
+                Add template items like "Water Bill Payment", "Electric Bill Payment", etc.
+            </p>
+        </field>
+    </record>
+</odoo>

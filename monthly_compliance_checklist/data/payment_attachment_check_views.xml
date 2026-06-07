@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Payment Attachment Check Form View -->
+    <record id="view_payment_attachment_check_form" model="ir.ui.view">
+        <field name="name">compliance.check.payment.attachment.form</field>
+        <field name="model">compliance.check.payment.attachment</field>
+        <field name="arch" type="xml">
+            <form string="Payment Attachment Check">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                        <group>
+                            <field name="valid_from"/>
+                            <field name="valid_until"/>
+                        </group>
+                    </group>
+
+                    <group string="Attachment Requirements">
+                        <group string="File Type and Count">
+                            <field name="attachment_types"/>
+                            <field name="min_attachments"/>
+                            <field name="max_attachments"/>
+                            <div colspan="2">
+                                <p class="text-info">
+                                    <i class="fa fa-info-circle"/> This check validates that payment records have the required number and type of attachments.
+                                </p>
+                            </div>
+                        </group>
+                        <group string="File Validation (Optional)">
+                            <field name="filename_pattern"/>
+                            <field name="min_filesize_kb"/>
+                            <field name="max_filesize_kb"/>
+                            <div colspan="2">
+                                <p class="text-muted">
+                                    <i class="fa fa-lightbulb-o"/> Use filename pattern for regex validation (e.g., "receipt.*\.pdf").
+                                    File sizes are in kilobytes.
+                                </p>
+                            </div>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Payment Attachment Check Tree View -->
+    <record id="view_payment_attachment_check_tree" model="ir.ui.view">
+        <field name="name">compliance.check.payment.attachment.tree</field>
+        <field name="model">compliance.check.payment.attachment</field>
+        <field name="arch" type="xml">
+            <tree string="Payment Attachment Checks">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="attachment_types"/>
+                <field name="min_attachments"/>
+                <field name="max_attachments"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Payment Attachment Check Search View -->
+    <record id="view_payment_attachment_check_search" model="ir.ui.view">
+        <field name="name">compliance.check.payment.attachment.search</field>
+        <field name="model">compliance.check.payment.attachment</field>
+        <field name="arch" type="xml">
+            <search string="Payment Attachment Checks">
+                <field name="name"/>
+                <field name="attachment_types"/>
+                <filter name="active" string="Active" domain="[('active', '=', True)]"/>
+                <filter name="pdf_only" string="PDF Only" domain="[('attachment_types', '=', 'pdf')]"/>
+                <filter name="has_pattern" string="Has Filename Pattern" domain="[('filename_pattern', '!=', False)]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_by_type" string="File Type" domain="[]" context="{'group_by': 'attachment_types'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Payment Attachment Check Action -->
+    <record id="action_payment_attachment_check" model="ir.actions.act_window">
+        <field name="name">Payment Attachment Checks</field>
+        <field name="res_model">compliance.check.payment.attachment</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first payment attachment check!
+            </p>
+            <p>
+                Payment attachment checks validate that payment records have required supporting documents.
+                Examples: Receipt attachments for expense payments, invoice attachments for vendor payments.
+            </p>
+        </field>
+    </record>
+</odoo>

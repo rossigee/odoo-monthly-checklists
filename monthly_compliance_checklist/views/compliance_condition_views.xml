@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Compliance Condition Tree View -->
+    <record id="view_compliance_condition_tree" model="ir.ui.view">
+        <field name="name">compliance.condition.tree</field>
+        <field name="model">compliance.condition.abstract</field>
+        <field name="arch" type="xml">
+            <tree string="Compliance Conditions" decoration-success="condition_state=='validated'"
+                  decoration-warning="condition_state=='warnings'" decoration-danger="condition_state=='incomplete'">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="year"/>
+                <field name="month"/>
+                <field name="condition_state"/>
+                <field name="warning_count"/>
+                <field name="error_count"/>
+                <field name="last_validation_date"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Compliance Condition Form View -->
+    <record id="view_compliance_condition_form" model="ir.ui.view">
+        <field name="name">compliance.condition.form</field>
+        <field name="model">compliance.condition.abstract</field>
+        <field name="arch" type="xml">
+            <form string="Compliance Condition">
+                <header>
+                    <button name="action_validate_condition" type="object" string="Validate Condition"
+                            class="btn-primary" icon="fa-check"/>
+                    <button name="request_validation" type="object" string="Request Validation"
+                            class="btn-secondary" icon="fa-paper-plane"/>
+                    <field name="condition_state" widget="statusbar" statusbar_visible="draft,incomplete,warnings,complete,validated"/>
+                </header>
+
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_validation_details" type="object"
+                                class="oe_stat_button" icon="fa-list-alt">
+                            <field name="warning_count" widget="statinfo" string="Warnings"/>
+                        </button>
+                        <button name="action_view_validation_details" type="object"
+                                class="oe_stat_button" icon="fa-exclamation-triangle">
+                            <field name="error_count" widget="statinfo" string="Errors"/>
+                        </button>
+                    </div>
+
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Condition Name"/>
+                        </h1>
+                        <h3>
+                            <field name="year" class="oe_inline"/> / <field name="month" class="oe_inline"/>
+                        </h3>
+                    </div>
+
+                    <group>
+                        <group name="main">
+                            <field name="checklist_id"/>
+                            <field name="sequence"/>
+                            <field name="last_validation_date"/>
+                        </group>
+                        <group name="validation">
+                            <!-- Tier validation fields will be added when properly configured -->
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Description">
+                            <field name="description" placeholder="Detailed description of what this condition validates"/>
+                        </page>
+
+                        <page string="Validation Details">
+                            <p class="alert alert-info">
+                                Validation details are temporarily disabled during development.
+                                Use the "Validate Condition" button to run validation checks.
+                            </p>
+                        </page>
+
+                        <page string="Validation Notes">
+                            <field name="validation_notes" placeholder="Notes from the validation process"/>
+                        </page>
+
+                        <page string="Tier Reviews">
+                            <p>Tier validation reviews will appear here when configured.</p>
+                        </page>
+                    </notebook>
+                </sheet>
+
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+</odoo>

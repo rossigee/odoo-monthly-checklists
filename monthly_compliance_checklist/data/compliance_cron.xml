@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Cron job to create monthly checklists -->
+    <record id="ir_cron_create_monthly_checklists" model="ir.cron">
+        <field name="name">Create Monthly Compliance Checklists</field>
+        <field name="model_id" ref="model_monthly_checklist"/>
+        <field name="state">code</field>
+        <field name="code">model.create_current_month_checklist()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="active">True</field>
+        <field name="priority">5</field>
+        <field name="user_id" ref="base.user_root"/>
+    </record>
+</odoo>

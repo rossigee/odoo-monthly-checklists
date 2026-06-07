@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Monthly Checklist Form View -->
+    <record id="view_monthly_checklist_form" model="ir.ui.view">
+        <field name="name">monthly.checklist.form</field>
+        <field name="model">monthly.checklist</field>
+        <field name="arch" type="xml">
+            <form string="Monthly Checklist">
+                <header>
+                    <button name="action_complete" string="Mark Complete"
+                            type="object" class="btn-primary"
+                            attrs="{'invisible': [('state', '!=', 'active')]}"/>
+                    <button name="action_reopen" string="Reopen"
+                            type="object" class="btn-secondary"
+                            attrs="{'invisible': [('state', '!=', 'completed')]}"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box" attrs="{'invisible': [('id', '=', False)]}">
+                        <button class="oe_stat_button" icon="fa-list-alt">
+                            <field name="total_items" widget="statinfo" string="Total Items"/>
+                        </button>
+                        <button class="oe_stat_button" icon="fa-check-circle">
+                            <field name="completed_items" widget="statinfo" string="Completed"/>
+                        </button>
+                    </div>
+
+                    <group>
+                        <group>
+                            <field name="period_date" attrs="{'readonly': [('id', '!=', False)], 'invisible': [('id', '!=', False)]}"/>
+                            <field name="period_display" attrs="{'invisible': [('id', '=', False)]}"/>
+                        </group>
+                        <group>
+                            <field name="completion_percentage" widget="progressbar"
+                                   attrs="{'invisible': [('id', '=', False)]}"/>
+                        </group>
+                    </group>
+
+                    <notebook attrs="{'invisible': [('id', '=', False)]}">
+                        <page string="Check Instances">
+                            <field name="check_instances" nolabel="1">
+                                <tree decoration-success="is_completed" decoration-muted="not is_completed">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="template_id"/>
+                                    <field name="is_completed"/>
+                                    <field name="validation_message"/>
+                                    <field name="related_move_ids" invisible="1"/>
+                                    <button name="action_view_related_moves" type="object"
+                                            icon="fa-external-link" title="View Related Transactions"
+                                            attrs="{'invisible': [('related_move_ids', '=', [])]}"/>
+                                    <button name="reevaluate_condition" type="object"
+                                            icon="fa-refresh" title="Re-evaluate Condition"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Notes">
+                            <field name="notes" nolabel="1" placeholder="Add notes about this monthly checklist..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Monthly Checklist Tree View -->
+    <record id="view_monthly_checklist_tree" model="ir.ui.view">
+        <field name="name">monthly.checklist.tree</field>
+        <field name="model">monthly.checklist</field>
+        <field name="arch" type="xml">
+            <tree string="Monthly Checklists" decoration-success="state=='completed'" decoration-info="state=='active'">
+                <field name="period_display"/>
+                <field name="state"/>
+                <field name="completion_percentage" widget="progressbar"/>
+                <field name="total_items"/>
+                <field name="completed_items"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Monthly Checklist Kanban View -->
+    <record id="view_monthly_checklist_kanban" model="ir.ui.view">
+        <field name="name">monthly.checklist.kanban</field>
+        <field name="model">monthly.checklist</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state">
+                <field name="period_display"/>
+                <field name="state"/>
+                <field name="completion_percentage"/>
+                <field name="total_items"/>
+                <field name="completed_items"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_title">
+                                    <t t-esc="record.period_display.value"/>
+                                </div>
+                                <div class="o_kanban_record_body">
+                                    <div class="progress">
+                                        <div class="progress-bar" role="progressbar"
+                                             t-att-style="'width: ' + record.completion_percentage.value + '%'">
+                                            <t t-esc="Math.round(record.completion_percentage.value)"/>%
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <i class="fa fa-check-circle text-success"/>
+                                        <t t-esc="record.completed_items.value"/> / <t t-esc="record.total_items.value"/> items
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Monthly Checklist Action -->
+    <record id="action_monthly_checklist" model="ir.actions.act_window">
+        <field name="name">Monthly Checklists</field>
+        <field name="res_model">monthly.checklist</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No monthly checklists found!
+            </p>
+            <p>
+                Monthly checklists are automatically created from applicable check templates.
+                Make sure you have check templates configured with appropriate validity periods.
+            </p>
+        </field>
+    </record>
+</odoo>
