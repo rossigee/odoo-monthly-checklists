@@ -16,7 +16,7 @@
                     <div class="oe_button_box" name="button_box">
                         <button class="oe_stat_button" icon="fa-external-link"
                                 name="action_view_related_moves" type="object"
-                                attrs="{'invisible': [('related_move_ids', '=', [])]}">
+                                invisible="related_move_ids in []">
                             <field name="related_move_ids" invisible="1"/>
                             <div class="o_field_widget o_stat_info">
                                 <span class="o_stat_value">
@@ -50,7 +50,7 @@
                                 <field name="debug_info" widget="text" nolabel="1" colspan="2"/>
                             </group>
                         </page>
-                        <page string="Related Transactions" attrs="{'invisible': [('related_move_ids', '=', [])]}">
+                        <page string="Related Transactions" invisible="related_move_ids in []">
                             <field name="related_move_ids" nolabel="1">
                                 <tree>
                                     <field name="name"/>
@@ -85,7 +85,7 @@
                 <field name="validation_message"/>
                 <button name="action_view_related_moves" type="object"
                         icon="fa-external-link" title="View Related Transactions"
-                        attrs="{'invisible': [('related_move_ids', '=', [])]}"/>
+                        invisible="related_move_ids in []"/>
                 <button name="reevaluate_condition" type="object"
                         icon="fa-refresh" title="Re-evaluate Condition"/>
                 <field name="related_move_ids" invisible="1"/>

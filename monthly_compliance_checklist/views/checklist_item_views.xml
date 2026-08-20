@@ -13,16 +13,16 @@
                             type="object" class="btn-info"/>
                     <button name="action_mark_complete" string="Mark Complete"
                             type="object" class="btn-primary"
-                            attrs="{'invisible': ['|', ('is_completed', '=', True), ('item_type', '!=', 'manual')]}"/>
+                            invisible="(is_completed == True) or (item_type != 'manual')"/>
                     <button name="action_mark_incomplete" string="Mark Incomplete"
                             type="object" class="btn-secondary"
-                            attrs="{'invisible': ['|', ('is_completed', '=', False), ('item_type', '!=', 'manual')]}"/>
+                            invisible="(is_completed == False) or (item_type != 'manual')"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <button name="action_view_transactions" type="object"
                                 class="oe_stat_button" icon="fa-list-alt"
-                                attrs="{'invisible': [('transaction_count', '=', 0)]}">
+                                invisible="transaction_count == 0">
                             <field name="transaction_count" widget="statinfo" string="Transactions"/>
                         </button>
                     </div>
@@ -38,16 +38,16 @@
                             <field name="is_completed"/>
                             <field name="completion_date"/>
                             <field name="required_transaction_type"
-                                   attrs="{'invisible': [('item_type', '!=', 'account')]}"/>
+                                   invisible="item_type != 'account'"/>
                         </group>
                     </group>
 
                     <group>
                         <group>
                             <field name="account_id"
-                                   attrs="{'invisible': [('item_type', '!=', 'account')], 'required': [('item_type', '=', 'account')]}"/>
+                                   invisible="item_type != 'account'" required="item_type == 'account'"/>
                             <field name="partner_id"
-                                   attrs="{'invisible': [('item_type', '!=', 'partner')], 'required': [('item_type', '=', 'partner')]}"/>
+                                   invisible="item_type != 'partner'" required="item_type == 'partner'"/>
                         </group>
                         <group>
                             <field name="notes"/>
@@ -56,7 +56,7 @@
                     </group>
 
                     <notebook>
-                        <page string="Related Transactions" attrs="{'invisible': [('transaction_count', '=', 0)]}">
+                        <page string="Related Transactions" invisible="transaction_count == 0">
                             <field name="related_moves" nolabel="1" readonly="1">
                                 <tree>
                                     <field name="name"/>

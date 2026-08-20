@@ -43,7 +43,7 @@
                         <group string="State Requirements">
                             <field name="require_posted"/>
                             <field name="require_payment"/>
-                            <div colspan="2" attrs="{'invisible': [('require_payment', '=', False)]}">
+                            <div colspan="2" invisible="require_payment == False">
                                 <p class="text-warning">
                                     <i class="fa fa-exclamation-triangle"/> When enabled, invoices must be fully paid to pass this check.
                                 </p>

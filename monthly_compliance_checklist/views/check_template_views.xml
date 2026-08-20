@@ -21,9 +21,9 @@
 
                     <notebook>
                          <page string="Configuration">
-                             <div attrs="{'invisible': [('compliance_check_id', '!=', False)]}">
+                             <div invisible="compliance_check_id">
                                  <!-- Legacy template fields for backward compatibility -->
-                                 <div attrs="{'invisible': [('template_type', '!=', 'partner_payment')]}">
+                                 <div invisible="template_type != 'partner_payment'">
                                      <h4>Partner Payment Configuration</h4>
                                      <group>
                                          <group>
@@ -43,7 +43,7 @@
                                      </group>
                                  </div>
 
-                                 <div attrs="{'invisible': [('template_type', '!=', 'attachment_check')]}">
+                                 <div invisible="template_type != 'attachment_check'">
                                      <h4>Attachment Requirements Configuration</h4>
                                      <group>
                                          <group>
@@ -59,7 +59,7 @@
                                      </group>
                                  </div>
 
-                                 <div attrs="{'invisible': [('template_type', '!=', 'recurring_expense')]}">
+                                 <div invisible="template_type != 'recurring_expense'">
                                      <h4>Recurring Expense Configuration</h4>
                                      <group>
                                          <group>
@@ -83,11 +83,11 @@
                                      <p>Please create a compliance check configuration for this template.</p>
                                      <button name="action_create_compliance_check" string="Create Configuration"
                                              type="object" class="btn-primary"
-                                             attrs="{'invisible': [('template_type', '=', False)]}"/>
+                                             invisible="template_type == False"/>
                                  </div>
                              </div>
 
-                             <div attrs="{'invisible': [('compliance_check_id', '=', False)]}">
+                             <div invisible="compliance_check_id == False">
                                  <group>
                                      <field name="compliance_check_id" readonly="1"/>
                                  </group>

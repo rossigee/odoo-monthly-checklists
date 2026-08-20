@@ -43,7 +43,7 @@
                         </group>
                         <group string="Payment Requirements">
                             <field name="require_reconciliation"/>
-                            <div colspan="2" attrs="{'invisible': [('require_reconciliation', '=', False)]}">
+                            <div colspan="2" invisible="require_reconciliation == False">
                                 <p class="text-warning">
                                     <i class="fa fa-exclamation-triangle"/> When enabled, payments must be fully reconciled (marked as paid) to pass this check.
                                 </p>

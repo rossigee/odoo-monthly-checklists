@@ -9,14 +9,14 @@
                 <header>
                     <button name="action_complete" string="Mark Complete"
                             type="object" class="btn-primary"
-                            attrs="{'invisible': [('state', '!=', 'active')]}"/>
+                            invisible="state != 'active'"/>
                     <button name="action_reopen" string="Reopen"
                             type="object" class="btn-secondary"
-                            attrs="{'invisible': [('state', '!=', 'completed')]}"/>
+                            invisible="state != 'completed'"/>
                     <field name="state" widget="statusbar"/>
                 </header>
                 <sheet>
-                    <div class="oe_button_box" name="button_box" attrs="{'invisible': [('id', '=', False)]}">
+                    <div class="oe_button_box" name="button_box" invisible="id == False">
                         <button class="oe_stat_button" icon="fa-list-alt">
                             <field name="total_items" widget="statinfo" string="Total Items"/>
                         </button>
@@ -27,16 +27,16 @@
 
                     <group>
                         <group>
-                            <field name="period_date" attrs="{'readonly': [('id', '!=', False)], 'invisible': [('id', '!=', False)]}"/>
-                            <field name="period_display" attrs="{'invisible': [('id', '=', False)]}"/>
+                            <field name="period_date" invisible="id" readonly="id"/>
+                            <field name="period_display" invisible="id == False"/>
                         </group>
                         <group>
                             <field name="completion_percentage" widget="progressbar"
-                                   attrs="{'invisible': [('id', '=', False)]}"/>
+                                   invisible="id == False"/>
                         </group>
                     </group>
 
-                    <notebook attrs="{'invisible': [('id', '=', False)]}">
+                    <notebook invisible="id == False">
                         <page string="Check Instances">
                             <field name="check_instances" nolabel="1">
                                 <tree decoration-success="is_completed" decoration-muted="not is_completed">
@@ -48,7 +48,7 @@
                                     <field name="related_move_ids" invisible="1"/>
                                     <button name="action_view_related_moves" type="object"
                                             icon="fa-external-link" title="View Related Transactions"
-                                            attrs="{'invisible': [('related_move_ids', '=', [])]}"/>
+                                            invisible="related_move_ids in []"/>
                                     <button name="reevaluate_condition" type="object"
                                             icon="fa-refresh" title="Re-evaluate Condition"/>
                                 </tree>

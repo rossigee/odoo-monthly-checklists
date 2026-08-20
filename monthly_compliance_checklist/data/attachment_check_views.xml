@@ -34,7 +34,7 @@
                             <field name="filename_pattern" placeholder="e.g. invoice.*\.pdf"/>
                             <field name="min_filesize_kb"/>
                             <field name="max_filesize_kb"/>
-                            <div colspan="2" attrs="{'invisible': [('filename_pattern', '=', False)]}">
+                            <div colspan="2" invisible="filename_pattern == False">
                                 <p class="text-info">
                                     <i class="fa fa-lightbulb-o"/> Filename pattern uses regex. Examples:<br/>
                                     • <code>invoice.*\.pdf</code> - PDF files starting with "invoice"<br/>
@@ -45,7 +45,7 @@
                         </group>
                         <group string="Transaction Scope">
                             <field name="require_all_transactions"/>
-                            <div colspan="2" attrs="{'invisible': [('require_all_transactions', '=', False)]}">
+                            <div colspan="2" invisible="require_all_transactions == False">
                                 <p class="text-warning">
                                     <i class="fa fa-exclamation-triangle"/> When enabled, ALL transactions in the period must meet attachment requirements.
                                     When disabled, at least ONE transaction must meet requirements.
