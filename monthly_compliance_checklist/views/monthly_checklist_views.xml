@@ -98,18 +98,18 @@
                         <div class="oe_kanban_card oe_kanban_global_click">
                             <div class="oe_kanban_content">
                                 <div class="o_kanban_record_title">
-                                    <t t-esc="record.period_display.value"/>
+                                    <t t-out="record.period_display.value"/>
                                 </div>
                                 <div class="o_kanban_record_body">
                                     <div class="progress">
                                         <div class="progress-bar" role="progressbar"
                                              t-att-style="'width: ' + record.completion_percentage.value + '%'">
-                                            <t t-esc="Math.round(record.completion_percentage.value)"/>%
+                                            <t t-out="Math.round(record.completion_percentage.value)"/>%
                                         </div>
                                     </div>
                                     <div class="mt-2">
                                         <i class="fa fa-check-circle text-success"/>
-                                        <t t-esc="record.completed_items.value"/> / <t t-esc="record.total_items.value"/> items
+                                        <t t-out="record.completed_items.value"/> / <t t-out="record.total_items.value"/> items
                                     </div>
                                 </div>
                             </div>

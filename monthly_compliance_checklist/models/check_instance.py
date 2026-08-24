@@ -61,6 +61,15 @@ class CheckInstance(models.Model):
         string="Related Moves",
         help="Account moves that satisfy this condition",
     )
+    related_move_count = fields.Integer(
+        string="Related Moves Count",
+        compute="_compute_related_move_count",
+    )
+
+    @api.depends("related_move_ids")
+    def _compute_related_move_count(self):
+        for instance in self:
+            instance.related_move_count = len(instance.related_move_ids)
 
     @api.depends("template_id", "year", "month")
     def _compute_is_completed(self):
