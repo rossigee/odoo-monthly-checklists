@@ -3,7 +3,7 @@
 
 {
     "name": "Monthly Compliance Checklist",
-    "version": "16.0.1.1.0",
+    "version": "17.0.1.1.0",
     "author": "Ross Golder",
     "website": "https://golder.org/",
     "license": "AGPL-3",
