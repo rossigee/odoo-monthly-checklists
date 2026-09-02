@@ -7,12 +7,13 @@ class AccountMove(models.Model):
     _inherit = "account.move"
 
     @api.model
-    def create(self, vals):
+    def create(self, vals_list):
         """Override create to trigger checklist updates"""
-        move = super().create(vals)
-        if move.state == "posted":
-            move._update_compliance_checklists()
-        return move
+        moves = super().create(vals_list)
+        posted_moves = moves.filtered(lambda m: m.state == "posted")
+        if posted_moves:
+            posted_moves._update_compliance_checklists()
+        return moves
 
     def write(self, vals):
         """Override write to trigger checklist updates when posted"""

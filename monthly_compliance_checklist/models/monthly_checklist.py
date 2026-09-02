@@ -112,12 +112,13 @@ class MonthlyChecklist(models.Model):
                 record.completion_percentage = 0.0
 
     @api.model
-    def create(self, vals):
+    def create(self, vals_list):
         """Override create to generate check instances"""
-        checklist = super().create(vals)
-        checklist._generate_check_instances()
-        checklist.state = "active"
-        return checklist
+        checklists = super().create(vals_list)
+        for checklist in checklists:
+            checklist._generate_check_instances()
+            checklist.state = "active"
+        return checklists
 
     def _generate_check_instances(self):
         """Generate check instances from applicable check templates"""

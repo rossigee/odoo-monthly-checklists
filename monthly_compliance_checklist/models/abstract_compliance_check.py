@@ -153,14 +153,15 @@ class AbstractComplianceCheck(models.AbstractModel):
         }
 
     @api.model
-    def create(self, vals):
+    def create(self, vals_list):
         """Override create to link back to template if context provided"""
-        record = super().create(vals)
+        records = super().create(vals_list)
 
         # If created from a template, link it back
         template_id = self.env.context.get("template_id")
         if template_id:
-            template = self.env["check.template"].browse(template_id)
-            template.compliance_check_id = f"{self._name},{record.id}"
+            for record in records:
+                template = self.env["check.template"].browse(template_id)
+                template.compliance_check_id = f"{self._name},{record.id}"
 
-        return record
+        return records
