@@ -52,6 +52,11 @@ class MonthlyChecklist(models.Model):
     )
 
     # Relationships - simplified design
+    template_id = fields.Many2one(
+        "compliance.template",
+        string="Compliance Template",
+        help="Template this checklist was created from",
+    )
     check_instances = fields.One2many(
         "check.instance",
         "checklist_id",
